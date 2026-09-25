@@ -1,0 +1,43 @@
+# =========================
+# BACKEND (Python/FastAPI)
+# =========================
+# Entornos Virtuales
+backend/env/
+backend/.env/
+backend/venv/
+backend/.venv/
+
+# Variables de Entorno (¡CRÍTICO PARA SEGURIDAD!)
+.env
+*.env
+
+# Archivos de caché de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Bases de datos SQLite (si usas alguna de prueba)
+*.db
+*.sqlite3
+
+# Carpetas de datos de Docker
+postgres_data/
+pgadmin_data/
+
+# =========================
+# FRONTEND (Node/React)
+# =========================
+node_modules/
+build/
+dist/
+.next/
+*.log
+
+# =========================
+# HERRAMIENTAS DE DESARROLLO
+# =========================
+.vscode/
+.idea/
+.DS_Store
