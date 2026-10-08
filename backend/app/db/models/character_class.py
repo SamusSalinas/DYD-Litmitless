@@ -1,18 +1,20 @@
-from typing import Any
-from sqlmodel import SQLModel, Field
-from sqlalchemy import Column
+import uuid
+from datetime import datetime, timezone
+from sqlmodel import SQLModel, Field, Column
 from sqlalchemy.dialects.postgresql import JSONB
 
-class ClassBase(SQLModel):
-    name: str = Field(index=True)
-    hit_die: int = Field(description="Valor del dado de golpe (ej. 12)")
-    class_features: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSONB))
-
-class Class(ClassBase, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-
-class ClassCreate(ClassBase):
-    pass
-
-class ClassPublic(ClassBase):
-    id: int
+class CharacterClass(SQLModel, table=True):
+    __tablename__ = "character_classes"
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    name: str = Field(index=True, unique=True)
+    hit_die: str
+    primary_ability: dict = Field(sa_column=Column(JSONB))
+    saving_throws: list = Field(sa_column=Column(JSONB))
+    armor_proficiencies: list = Field(default_factory=list, sa_column=Column(JSONB))
+    weapon_proficiencies: list = Field(default_factory=list, sa_column=Column(JSONB))
+    skill_choices: dict = Field(sa_column=Column(JSONB))
+    features_by_level: dict = Field(sa_column=Column(JSONB))
+    spellcasting: dict | None = Field(default=None, sa_column=Column(JSONB))
+    description: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

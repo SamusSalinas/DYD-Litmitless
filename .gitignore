@@ -10,6 +10,8 @@ backend/.venv/
 # Variables de Entorno (¡CRÍTICO PARA SEGURIDAD!)
 .env
 *.env
+.env.*
+!.env.example
 
 # Archivos de caché de Python
 __pycache__/

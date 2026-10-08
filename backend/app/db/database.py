@@ -1,8 +1,15 @@
-from sqlmodel import create_engine
-import os
+from sqlmodel import SQLModel, create_engine, Session
+from app.core.config import get_settings
 
-# Normalmente cargarías esto usando pydantic-settings
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://dnd_user:secretpassword@localhost:5432/dnd_beyond_clone")
+settings = get_settings()
 
-# create_engine gestiona el pool de conexiones hacia PostgreSQL
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(settings.DATABASE_URL, pool_pre_ping=True)
+
+
+def create_db_and_tables() -> None:
+    SQLModel.metadata.create_all(engine)
+
+
+def get_session():
+    with Session(engine) as session:
+        yield session

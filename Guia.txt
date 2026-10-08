@@ -1,0 +1,80 @@
+# Guía para iniciar el proyecto local
+
+Esta guía es para Windows con PowerShell. Necesitas Docker Desktop, Python 3.12 o posterior, Node.js y npm. Ejecuta los comandos desde la carpeta raíz del proyecto, salvo que se indique otra ubicación.
+
+## 1. Preparar la configuración
+
+Abre Docker Desktop y espera a que indique que está iniciado. En la primera ejecución, desde la raíz del proyecto, crea tu archivo local de configuración:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Edita `.env` y establece contraseñas locales propias. Mantén sincronizada la contraseña de PostgreSQL en `DATABASE_URL`, `TEST_DATABASE_URL` y `POSTGRES_PASSWORD`. No compartas ni subas `.env` al repositorio.
+
+Si ya tienes `.env`, no lo reemplaces: puede contener tu configuración local actual. Los puertos efectivos se consultan en `.env` y se confirman con `docker compose ps`. Por ejemplo, en esta instalación PostgreSQL usa `5433` y pgAdmin `5051`; la plantilla `.env.example` tiene los valores `5432` y `5050`.
+
+## 2. Iniciar la base de datos
+
+En una terminal PowerShell ubicada en la raíz:
+
+```powershell
+docker compose up -d db pgadmin
+docker compose ps
+```
+
+Espera a que el servicio `db` aparezca como `healthy`. PostgreSQL queda accesible en el puerto indicado por `POSTGRES_PORT`. pgAdmin es opcional y está disponible en `http://localhost:<PGADMIN_PORT>`; sus credenciales son las definidas en `.env`.
+
+## 3. Iniciar el backend
+
+Abre una segunda terminal PowerShell y ejecuta:
+
+```powershell
+Set-Location backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+Si PowerShell impide activar el entorno virtual, en esa terminal puedes habilitar scripts solo para la sesión actual y activar de nuevo:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
+
+La API está en `http://localhost:8000`; la documentación interactiva, en `http://localhost:8000/docs`. Comprueba que puede acceder a la base de datos abriendo `http://localhost:8000/api/health`; debe responder `{"status":"ok"}`.
+
+## 4. Cargar datos iniciales
+
+Con el backend funcionando, desde una tercera terminal PowerShell ejecuta:
+
+```powershell
+Invoke-RestMethod -Method Post -Uri http://localhost:8000/api/seed/
+```
+
+Esto carga los datos de ejemplo del compendio (hechizos, clases, razas, monstruos y equipo). Se puede repetir sin duplicar esas entradas.
+
+## 5. Iniciar el frontend y abrir la web
+
+Abre otra terminal PowerShell:
+
+```powershell
+Set-Location frontend
+Copy-Item .env.example .env.local
+npm ci
+npm run dev
+```
+
+Si ya existe `frontend/.env.local`, conserva ese archivo y omite `Copy-Item`. Deja `npm run dev` ejecutándose y abre `http://localhost:5173` en el navegador.
+
+## 6. Detener el proyecto
+
+En las terminales del frontend y backend pulsa `Ctrl+C`. Para detener los contenedores, desde la raíz ejecuta:
+
+```powershell
+docker compose stop
+```
+
+Para volver a iniciar posteriormente, repite los pasos 2, 3 y 5. Los datos de PostgreSQL se conservan en el volumen de Docker.

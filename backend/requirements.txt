@@ -1,0 +1,9 @@
+fastapi[standard]
+sqlmodel
+psycopg2-binary
+pydantic-settings
+python-dotenv
+alembic
+httpx
+pytest
+pydantic[email]
