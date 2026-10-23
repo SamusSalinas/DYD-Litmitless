@@ -27,6 +27,8 @@ class MonsterBase(BaseModel):
     actions: list[dict]
     legendary_actions: list[dict] | None = None
     description: str | None = None
+    source_book: str = "Unknown"
+    has_token: bool = False
 
 class MonsterCreate(MonsterBase):
     pass
@@ -55,6 +57,8 @@ class MonsterUpdate(BaseModel):
     actions: list[dict] | None = None
     legendary_actions: list[dict] | None = None
     description: str | None = None
+    source_book: str | None = None
+    has_token: bool | None = None
 
 class MonsterRead(MonsterBase):
     id: uuid.UUID

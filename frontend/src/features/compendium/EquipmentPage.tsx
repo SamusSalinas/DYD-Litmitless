@@ -17,21 +17,21 @@ export default function EquipmentPage() {
   });
 
   return (
-    <div className="p-6 bg-zinc-950 text-zinc-100 min-h-screen">
-      <h1 className="text-4xl font-serif text-red-700 mb-6 border-b border-red-900 pb-2">Equipment</h1>
+    <div className="p-6 text-zinc-100">
+      <h1 className="text-4xl font-serif text-dnd-gold mb-6 border-b border-dnd-teal/30 pb-2">Equipment</h1>
       
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <Input 
           placeholder="Search equipment..." 
           value={nameFilter} 
           onChange={(e) => setNameFilter(e.target.value)} 
-          className="bg-zinc-900 border-zinc-700 text-white w-full md:w-1/3"
+          className="bg-dnd-card border-dnd-border text-white w-full md:w-1/3 focus:border-dnd-teal"
         />
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-full md:w-[220px] bg-zinc-900 border-zinc-700">
+          <SelectTrigger className="w-full md:w-[220px] bg-dnd-card border-dnd-border">
             <SelectValue placeholder="Category" />
           </SelectTrigger>
-          <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
+          <SelectContent className="bg-dnd-surface border-dnd-border text-white">
             <SelectItem value="all">All Categories</SelectItem>
             <SelectItem value="Weapon">Weapon</SelectItem>
             <SelectItem value="Armor">Armor</SelectItem>
@@ -41,10 +41,10 @@ export default function EquipmentPage() {
         </Select>
       </div>
 
-      <div className="border border-zinc-800 rounded-md overflow-hidden bg-zinc-900">
+      <div className="border border-dnd-border rounded-md overflow-hidden bg-dnd-card">
         <Table>
           <TableHeader>
-            <TableRow className="border-zinc-800 hover:bg-zinc-800">
+            <TableRow className="border-dnd-border hover:bg-dnd-surface">
               <TableHead className="text-zinc-400">Name</TableHead>
               <TableHead className="text-zinc-400">Category</TableHead>
               <TableHead className="text-zinc-400">Cost</TableHead>
@@ -54,11 +54,11 @@ export default function EquipmentPage() {
           <TableBody>
             {isLoading ? (
               Array.from({length: 5}).map((_, i) => (
-                <TableRow key={i} className="border-zinc-800">
-                  <TableCell><Skeleton className="h-4 w-32 bg-zinc-800" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-24 bg-zinc-800" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-12 bg-zinc-800" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-8 bg-zinc-800" /></TableCell>
+                <TableRow key={i} className="border-dnd-border">
+                  <TableCell><Skeleton className="h-4 w-32 bg-dnd-surface" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-24 bg-dnd-surface" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-12 bg-dnd-surface" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-8 bg-dnd-surface" /></TableCell>
                 </TableRow>
               ))
             ) : isError ? (
@@ -68,22 +68,22 @@ export default function EquipmentPage() {
             ) : equipmentList.map(item => (
               <Fragment key={item.id}>
                 <TableRow 
-                  className="border-zinc-800 hover:bg-zinc-800/50 transition-colors cursor-pointer"
+                  className="border-dnd-border hover:bg-dnd-surface/50 transition-colors cursor-pointer"
                   onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
                 >
-                  <TableCell className="text-red-400 font-medium">{item.name}</TableCell>
+                  <TableCell className="text-dnd-teal font-medium">{item.name}</TableCell>
                   <TableCell>{item.category}{item.subcategory ? ` (${item.subcategory})` : ''}</TableCell>
                   <TableCell>{item.cost}</TableCell>
                   <TableCell>{item.weight ?? '-'}</TableCell>
                 </TableRow>
                 {expandedId === item.id && (
-                  <TableRow className="border-zinc-800 bg-zinc-950/50">
+                  <TableRow className="border-dnd-border bg-dnd-bg/50">
                     <TableCell colSpan={4} className="p-4">
                       <div className="text-zinc-300 space-y-2">
                         {item.properties && Object.keys(item.properties).length > 0 && (
                           <div className="flex gap-2 flex-wrap text-sm mb-2">
                             {Object.entries(item.properties).map(([k, v]) => (
-                              <span key={k} className="bg-zinc-800 px-2 py-1 rounded text-zinc-400">
+                              <span key={k} className="bg-dnd-surface px-2 py-1 rounded text-zinc-400">
                                 {k}: {JSON.stringify(v)}
                               </span>
                             ))}

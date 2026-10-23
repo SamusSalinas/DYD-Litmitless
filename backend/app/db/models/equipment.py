@@ -13,5 +13,6 @@ class Equipment(SQLModel, table=True):
     weight: float | None = None
     properties: dict | None = Field(default=None, sa_column=Column(JSONB))
     description: str | None = None
+    source_book: str = "Unknown"
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

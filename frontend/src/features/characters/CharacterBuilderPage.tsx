@@ -74,8 +74,6 @@ export function CharacterBuilderPage() {
   const handleSave = () => {
     if (!details.name || !race || !charClass) return;
     
-    // Compute total abilities (with racial bonuses if any, assuming standard +2/+1 or specific for now we just use base)
-    // To simplify, we'll just use the raw abilities.
     const conMod = getMod(abilities.CON);
     const dexMod = getMod(abilities.DEX);
     const hitDieValue = charClass.hit_die ? parseInt(charClass.hit_die.replace('d', '')) : 8;
@@ -114,23 +112,23 @@ export function CharacterBuilderPage() {
   return (
     <div className="container mx-auto py-8 text-zinc-200">
       <div className="mb-8">
-        <h1 className="text-3xl font-serif text-[#8B0000] mb-4">Character Builder</h1>
+        <h1 className="text-3xl font-serif text-dnd-gold mb-4">Character Builder</h1>
         {compendiumError && (
           <QueryError
             message="Could not load the character options. Check the API connection and try again."
             onRetry={retryCompendium}
           />
         )}
-        <div className="flex justify-between items-center bg-zinc-900 p-4 rounded-lg border border-zinc-800">
+        <div className="flex justify-between items-center bg-dnd-card p-4 rounded-lg border border-dnd-border">
           {[1, 2, 3, 4, 5, 6, 7].map(s => (
-            <div key={s} className={`flex-1 text-center font-bold ${step === s ? 'text-[#8B0000]' : 'text-zinc-500'}`}>
+            <div key={s} className={`flex-1 text-center font-bold transition-colors ${step === s ? 'text-dnd-gold' : step > s ? 'text-dnd-teal' : 'text-zinc-500'}`}>
               Step {s}
             </div>
           ))}
         </div>
       </div>
 
-      <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800 min-h-[60vh] mb-8">
+      <div className="bg-dnd-card p-6 rounded-lg border border-dnd-border min-h-[60vh] mb-8">
         {step === 1 && (
           <div>
             <h2 className="text-2xl font-serif mb-4">Choose a Race</h2>
@@ -142,7 +140,7 @@ export function CharacterBuilderPage() {
                 <div 
                   key={r.id} 
                   onClick={() => setRace(r)}
-                  className={`p-4 rounded border cursor-pointer ${race?.id === r.id ? 'border-[#8B0000] bg-zinc-800' : 'border-zinc-700 hover:border-zinc-500'}`}
+                  className={`p-4 rounded border cursor-pointer transition-all duration-200 ${race?.id === r.id ? 'border-dnd-teal bg-dnd-surface shadow-[0_0_15px_rgba(49,170,169,0.15)]' : 'border-dnd-border hover:border-zinc-500'}`}
                 >
                   <h3 className="text-xl font-bold">{r.name}</h3>
                   <p className="text-sm text-zinc-400 mt-2">Speed: {r.speed}</p>
@@ -163,7 +161,7 @@ export function CharacterBuilderPage() {
                 <div 
                   key={c.id} 
                   onClick={() => setCharClass(c)}
-                  className={`p-4 rounded border cursor-pointer ${charClass?.id === c.id ? 'border-[#8B0000] bg-zinc-800' : 'border-zinc-700 hover:border-zinc-500'}`}
+                  className={`p-4 rounded border cursor-pointer transition-all duration-200 ${charClass?.id === c.id ? 'border-dnd-teal bg-dnd-surface shadow-[0_0_15px_rgba(49,170,169,0.15)]' : 'border-dnd-border hover:border-zinc-500'}`}
                 >
                   <h3 className="text-xl font-bold">{c.name}</h3>
                   <p className="text-sm text-zinc-400 mt-2">Hit Die: {c.hit_die}</p>
@@ -179,19 +177,19 @@ export function CharacterBuilderPage() {
               <h2 className="text-2xl font-serif">Ability Scores</h2>
               <div className="space-x-4">
                 <Button variant="outline" onClick={applyStandardArray}>Standard Array</Button>
-                <span className="font-bold text-lg text-[#8B0000]">Points: {remainingPoints}/27</span>
+                <span className="font-bold text-lg text-dnd-gold">Points: {remainingPoints}/27</span>
               </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
               {ABILITIES.map(stat => (
-                <div key={stat} className="bg-zinc-950 p-4 rounded border border-zinc-800 text-center">
+                <div key={stat} className="bg-dnd-bg p-4 rounded border border-dnd-border text-center">
                   <div className="font-bold text-xl mb-2">{stat}</div>
                   <div className="flex items-center justify-center space-x-4 mb-2">
                     <Button variant="outline" size="sm" onClick={() => handleAbilityChange(stat, -1)}>-</Button>
                     <span className="text-2xl w-8">{abilities[stat]}</span>
                     <Button variant="outline" size="sm" onClick={() => handleAbilityChange(stat, 1)}>+</Button>
                   </div>
-                  <div className="text-zinc-400">Modifier: {getMod(abilities[stat]) >= 0 ? '+' : ''}{getMod(abilities[stat])}</div>
+                  <div className="text-dnd-teal">Modifier: {getMod(abilities[stat]) >= 0 ? '+' : ''}{getMod(abilities[stat])}</div>
                 </div>
               ))}
             </div>
@@ -209,7 +207,7 @@ export function CharacterBuilderPage() {
                     const isSelected = selectedSkills.includes(skill);
                     const canSelect = isSelected || selectedSkills.length < charClass.skill_choices.choose;
                     return (
-                      <label key={skill} className={`flex items-center space-x-2 p-2 rounded border ${isSelected ? 'border-[#8B0000] bg-zinc-800' : 'border-zinc-800'} ${!canSelect && !isSelected ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                      <label key={skill} className={`flex items-center space-x-2 p-2 rounded border transition-all ${isSelected ? 'border-dnd-teal bg-dnd-surface' : 'border-dnd-border'} ${!canSelect && !isSelected ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
                         <input 
                           type="checkbox"
                           disabled={!canSelect && !isSelected}
@@ -243,7 +241,7 @@ export function CharacterBuilderPage() {
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[50vh] overflow-y-auto">
               {equipmentList.map((eq) => (
-                <label key={eq.id} className="flex items-start space-x-3 p-3 border border-zinc-800 rounded bg-zinc-950 cursor-pointer">
+                <label key={eq.id} className="flex items-start space-x-3 p-3 border border-dnd-border rounded bg-dnd-bg cursor-pointer hover:border-dnd-teal/50 transition-colors">
                   <input 
                     type="checkbox"
                     checked={selectedEquipment.includes(eq.name)}
@@ -272,7 +270,7 @@ export function CharacterBuilderPage() {
                 type="text" 
                 value={details.name}
                 onChange={e => setDetails({...details, name: e.target.value})}
-                className="w-full p-2 rounded bg-zinc-950 border border-zinc-700 text-white"
+                className="w-full p-2 rounded bg-dnd-bg border border-dnd-border text-white focus:border-dnd-teal outline-none transition-colors"
                 placeholder="Enter name"
               />
             </div>
@@ -281,7 +279,7 @@ export function CharacterBuilderPage() {
               <select 
                 value={details.alignment}
                 onChange={e => setDetails({...details, alignment: e.target.value})}
-                className="w-full p-2 rounded bg-zinc-950 border border-zinc-700 text-white"
+                className="w-full p-2 rounded bg-dnd-bg border border-dnd-border text-white"
               >
                 <option value="">Select Alignment</option>
                 {ALIGNMENTS.map(a => <option key={a} value={a}>{a}</option>)}
@@ -293,7 +291,7 @@ export function CharacterBuilderPage() {
                 type="text" 
                 value={details.background}
                 onChange={e => setDetails({...details, background: e.target.value})}
-                className="w-full p-2 rounded bg-zinc-950 border border-zinc-700 text-white"
+                className="w-full p-2 rounded bg-dnd-bg border border-dnd-border text-white focus:border-dnd-teal outline-none transition-colors"
                 placeholder="e.g. Acolyte, Criminal, Folk Hero"
               />
             </div>
@@ -302,7 +300,7 @@ export function CharacterBuilderPage() {
               <textarea 
                 value={details.backstory}
                 onChange={e => setDetails({...details, backstory: e.target.value})}
-                className="w-full p-2 rounded bg-zinc-950 border border-zinc-700 text-white h-32"
+                className="w-full p-2 rounded bg-dnd-bg border border-dnd-border text-white h-32 focus:border-dnd-teal outline-none transition-colors"
                 placeholder="Your character's history..."
               />
             </div>
@@ -312,22 +310,22 @@ export function CharacterBuilderPage() {
         {step === 7 && (
           <div>
             <h2 className="text-2xl font-serif mb-6 text-center">Review & Create</h2>
-            <div className="max-w-2xl mx-auto bg-zinc-950 p-6 rounded border border-[#8B0000]">
-              <h3 className="text-3xl font-serif text-center mb-2">{details.name || 'Unnamed'}</h3>
+            <div className="max-w-2xl mx-auto bg-dnd-bg p-6 rounded border border-dnd-teal">
+              <h3 className="text-3xl font-serif text-center mb-2 text-dnd-gold">{details.name || 'Unnamed'}</h3>
               <p className="text-center text-zinc-400 mb-6">Level 1 {race?.name} {charClass?.name}</p>
               
               <div className="grid grid-cols-3 gap-4 mb-6 text-center">
-                <div className="p-3 bg-zinc-900 rounded border border-zinc-800">
+                <div className="p-3 bg-dnd-card rounded border border-dnd-border">
                   <div className="text-sm text-zinc-400">AC</div>
-                  <div className="text-xl font-bold">{10 + getMod(abilities.DEX)}</div>
+                  <div className="text-xl font-bold text-dnd-gold">{10 + getMod(abilities.DEX)}</div>
                 </div>
-                <div className="p-3 bg-zinc-900 rounded border border-zinc-800">
+                <div className="p-3 bg-dnd-card rounded border border-dnd-border">
                   <div className="text-sm text-zinc-400">HP</div>
-                  <div className="text-xl font-bold">
+                  <div className="text-xl font-bold text-dnd-teal">
                     {(charClass?.hit_die ? parseInt(charClass.hit_die.replace('d', '')) : 8) + getMod(abilities.CON)}
                   </div>
                 </div>
-                <div className="p-3 bg-zinc-900 rounded border border-zinc-800">
+                <div className="p-3 bg-dnd-card rounded border border-dnd-border">
                   <div className="text-sm text-zinc-400">Speed</div>
                   <div className="text-xl font-bold">{race?.speed || 30}</div>
                 </div>
@@ -335,7 +333,7 @@ export function CharacterBuilderPage() {
 
               <div className="grid grid-cols-6 gap-2 mb-6">
                 {ABILITIES.map(stat => (
-                  <div key={stat} className="text-center p-2 bg-zinc-900 rounded border border-zinc-800">
+                  <div key={stat} className="text-center p-2 bg-dnd-card rounded border border-dnd-border">
                     <div className="text-xs text-zinc-500">{stat}</div>
                     <div className="font-bold">{abilities[stat]}</div>
                   </div>
@@ -361,7 +359,7 @@ export function CharacterBuilderPage() {
         
         {step < 7 ? (
           <Button 
-            className="bg-[#8B0000] text-white hover:bg-[#6b0000]"
+            className="bg-dnd-red text-white hover:bg-dnd-dark transition-colors"
             onClick={() => setStep(s => Math.min(7, s + 1))}
             disabled={
               (step === 1 && !race) ||
@@ -374,7 +372,7 @@ export function CharacterBuilderPage() {
           </Button>
         ) : (
           <Button 
-            className="bg-[#8B0000] text-white hover:bg-[#6b0000]"
+            className="bg-dnd-red text-white hover:bg-dnd-dark transition-colors"
             onClick={handleSave}
             disabled={createMutation.isPending || !details.name}
           >

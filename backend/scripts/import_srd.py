@@ -1,5 +1,4 @@
-"""Import SRD-marked 5e rules data into the local compendium database."""
-
+"""Import 5e rules data from 5etools into the local compendium database."""
 from __future__ import annotations
 
 import argparse
@@ -15,35 +14,46 @@ from sqlmodel import Session, select
 
 from app.db.models import CharacterClass, Equipment, Monster, Race, Spell
 
-
+# Apuntamos al repositorio de 2014 de 5etools (Mirror 3)
 SOURCE_ROOT = (
     "https://raw.githubusercontent.com/5etools-mirror-3/"
     "5etools-2014-src/main/data"
 )
+
+# Actualizamos la atribución para reflejar que se usa todo el contenido
 ATTRIBUTION = (
-    "Content from the D&D System Reference Document 5.1 by Wizards of the Coast, "
-    "licensed under CC BY 4.0 "
-    "(https://creativecommons.org/licenses/by/4.0/). "
-    "Imported from the 5etools 2014 data mirror; changes: converted to this "
-    "application's compendium format."
+    "Data imported from the 5etools 2014 data mirror; "
+    "changes: converted to this application's compendium format."
 )
+
 CLASS_FILES = (
-    "class-barbarian.json",
-    "class-bard.json",
-    "class-cleric.json",
-    "class-druid.json",
-    "class-fighter.json",
-    "class-monk.json",
-    "class-paladin.json",
-    "class-ranger.json",
-    "class-rogue.json",
-    "class-sorcerer.json",
-    "class-warlock.json",
-    "class-wizard.json",
+    "class/class-barbarian.json",
+    "class/class-bard.json",
+    "class/class-cleric.json",
+    "class/class-druid.json",
+    "class/class-fighter.json",
+    "class/class-monk.json",
+    "class/class-paladin.json",
+    "class/class-ranger.json",
+    "class/class-rogue.json",
+    "class/class-sorcerer.json",
+    "class/class-warlock.json",
+    "class/class-wizard.json",
+    "class/class-artificer.json", # Agregado Artífice
 )
+
+# Expandimos los archivos para importar muchas más expansiones
 DATA_FILES = (
     "spells/spells-phb.json",
+    "spells/spells-xge.json", # Xanathar's Guide to Everything
+    "spells/spells-tce.json", # Tasha's Cauldron of Everything
+    "spells/spells-scag.json", # Sword Coast Adventurer's Guide
+    "spells/spells-ftd.json", # Fizban's Treasury of Dragons
     "bestiary/bestiary-mm.json",
+    "bestiary/bestiary-vgm.json", # Volo's Guide to Monsters
+    "bestiary/bestiary-mtf.json", # Mordenkainen's Tome of Foes
+    "bestiary/bestiary-mpmm.json", # Monsters of the Multiverse
+    "bestiary/bestiary-ftd.json", # Fizban's Treasury of Dragons
     "races.json",
     "items.json",
     "items-base.json",
@@ -51,9 +61,10 @@ DATA_FILES = (
 
 
 def fetch_json(relative_path: str) -> dict:
+    """Descarga el JSON desde GitHub."""
     request = Request(
         f"{SOURCE_ROOT}/{relative_path}",
-        headers={"User-Agent": "dnd-beyond-clone-srd-importer"},
+        headers={"User-Agent": "dnd-beyond-clone-importer"},
     )
     try:
         with urlopen(request, timeout=45) as response:
@@ -63,6 +74,7 @@ def fetch_json(relative_path: str) -> dict:
 
 
 def plain_text(value: object) -> str:
+    """Limpia etiquetas específicas de 5etools (ej: {@spell fireball}) a texto plano."""
     if isinstance(value, str):
         value = re.sub(r"\{@[a-zA-Z]+\s+([^}|]+)(?:\|[^}]*)?\}", r"\1", value)
         return value.strip()
@@ -99,21 +111,27 @@ def plain_text(value: object) -> str:
 
 
 def srd_records(data: dict, key: str) -> list[dict]:
+    """
+    Extrae los registros de la lista especificada (key).
+    MODIFICACIÓN (A): Se quitó el filtro de `srd == True`. Ahora retorna TODO el contenido del JSON.
+    """
     return [
         record
         for record in data.get(key, [])
-        if isinstance(record, dict) and record.get("srd") is True
+        if isinstance(record, dict) # <-- EL FILTRO SRD FUE ELIMINADO
     ]
 
 
 def source_note(record: dict) -> str:
-    source = record.get("source", "SRD")
+    """Genera la nota de atribución y fuente (ej: PHB, p. 100)."""
+    source = record.get("source", "Unknown")
     page = record.get("page")
     location = f"{source}, p. {page}" if page else source
-    return f"{ATTRIBUTION} Source reference: {location}."
+    return f"{ATTRIBUTION} Source: {location}."
 
 
 def spell_record(record: dict) -> dict:
+    """Mapea un hechizo de 5etools al esquema local."""
     components = record.get("components", {})
     component_names = [
         name.upper()
@@ -124,6 +142,7 @@ def spell_record(record: dict) -> dict:
     material_text = plain_text(material) if isinstance(material, (str, dict)) else None
     if isinstance(material, bool):
         material_text = None
+
     duration = plain_text(record.get("duration", []))
     is_concentration = any(
         entry.get("concentration") is True
@@ -140,6 +159,10 @@ def spell_record(record: dict) -> dict:
     higher = record.get("entriesHigherLevel")
     classes = record.get("classes", {}).get("fromClassList", [])
     description = plain_text(record.get("entries", []))
+    
+    # MODIFICACIÓN (C): Extraer el libro de origen para que React pueda construir la URL de la imagen
+    source_book = record.get("source", "PHB")
+
     return {
         "name": record["name"],
         "level": record.get("level", 0),
@@ -157,16 +180,19 @@ def spell_record(record: dict) -> dict:
         "classes": [item["name"] for item in classes if item.get("name")],
         "ritual": bool(record.get("meta", {}).get("ritual")),
         "concentration": is_concentration or "concentration" in duration.lower(),
+        "source_book": source_book,
     }
 
 
 def challenge_rating(value: object) -> tuple[float, int]:
+    """Convierte el formato de CR de 5etools a float y calcula XP."""
     cr = value.get("cr", "0") if isinstance(value, dict) else value
     xp = value.get("xp") if isinstance(value, dict) else None
     try:
         rating = float(Fraction(str(cr)))
     except (TypeError, ValueError, ZeroDivisionError):
         rating = 0.0
+
     xp_by_cr = {
         0.0: 0, 0.125: 25, 0.25: 50, 0.5: 100, 1.0: 200, 2.0: 450,
         3.0: 700, 4.0: 1100, 5.0: 1800, 6.0: 2300, 7.0: 2900,
@@ -181,6 +207,7 @@ def challenge_rating(value: object) -> tuple[float, int]:
 
 
 def monster_record(record: dict) -> dict:
+    """Mapea un monstruo de 5etools al esquema local."""
     armor = record.get("ac", [0])[0]
     if isinstance(armor, dict):
         armor_class = armor.get("ac", 0)
@@ -188,15 +215,18 @@ def monster_record(record: dict) -> dict:
     else:
         armor_class = armor
         armor_type = None
+
     cr, xp = challenge_rating(record.get("cr", "0"))
     monster_type = record.get("type", "")
     if isinstance(monster_type, dict):
         monster_type = monster_type.get("type", "")
+
     senses = {"passive perception": record.get("passive", 10)}
     for sense in record.get("senses", []):
         if isinstance(sense, str):
             name, _, detail = sense.partition(" ")
             senses[name] = detail or True
+
     traits = named_entries(record.get("trait", []))
     actions = named_entries(record.get("action", []))
     saves = record.get("save")
@@ -204,6 +234,7 @@ def monster_record(record: dict) -> dict:
     speed_data = record.get("speed", {})
     speeds = {}
     speed_notes = []
+
     for movement, value in speed_data.items():
         if movement == "canHover":
             if value:
@@ -217,6 +248,7 @@ def monster_record(record: dict) -> dict:
                 )
         elif not isinstance(value, bool):
             speeds[movement] = value
+
     size_names = {"T": "Tiny", "S": "Small", "M": "Medium", "L": "Large",
                   "H": "Huge", "G": "Gargantuan"}
     alignment_names = {
@@ -230,8 +262,14 @@ def monster_record(record: dict) -> dict:
         for value in alignment
         if isinstance(value, str)
     ) if isinstance(alignment, list) else plain_text(alignment)
+    
     size = record.get("size", ["M"])
     size_text = ", ".join(size_names.get(value, value) for value in size)
+
+    # MODIFICACIÓN (C): Extraer datos para tokens de React
+    source_book = record.get("source", "MM") # Ej: MM, VGM, MTF
+    has_token = record.get("hasToken", False) # 5etools indica si existe el token en su repo de imágenes
+
     return {
         "name": record["name"],
         "size": size_text,
@@ -263,6 +301,8 @@ def monster_record(record: dict) -> dict:
         "actions": actions,
         "legendary_actions": named_entries(record.get("legendary", [])),
         "description": "\n".join([source_note(record), *speed_notes]),
+        "source_book": source_book,
+        "has_token": has_token,
     }
 
 
@@ -287,6 +327,7 @@ def named_entries(items: object) -> list[dict[str, str]]:
 
 
 def race_record(record: dict, subraces: list[dict] | None = None) -> dict:
+    """Mapea razas y subrazas al esquema local."""
     ability_bonuses: dict[str, object] = {}
     for option in record.get("ability", []):
         if isinstance(option, dict):
@@ -297,15 +338,18 @@ def race_record(record: dict, subraces: list[dict] | None = None) -> dict:
                     ability_bonuses[key.upper()] = value
                 else:
                     ability_bonuses[key.upper()] = plain_text(value)
+
     speed = record.get("speed", {})
     walk_speed = speed.get("walk", 30) if isinstance(speed, dict) else speed
     if isinstance(walk_speed, dict):
         walk_speed = walk_speed.get("number", 30)
+
     size_names = {"T": "Tiny", "S": "Small", "M": "Medium", "L": "Large",
                   "H": "Huge", "G": "Gargantuan"}
     size = ", ".join(
         size_names.get(value, value) for value in record.get("size", ["M"])
     )
+
     language_options = record.get("languageProficiencies", [])
     languages = sorted(
         {
@@ -316,6 +360,7 @@ def race_record(record: dict, subraces: list[dict] | None = None) -> dict:
             if allowed is True
         }
     )
+
     entries = record.get("entries", [])
     traits = [
         {
@@ -326,6 +371,7 @@ def race_record(record: dict, subraces: list[dict] | None = None) -> dict:
         if isinstance(entry, dict)
     ]
     description = plain_text(entries)
+
     race_subraces = [
         {
             "name": subrace["name"],
@@ -334,6 +380,10 @@ def race_record(record: dict, subraces: list[dict] | None = None) -> dict:
         for subrace in subraces or []
         if subrace.get("name")
     ]
+    
+    # MODIFICACIÓN (C)
+    source_book = record.get("source", "PHB")
+
     return {
         "name": record["name"],
         "ability_bonuses": ability_bonuses,
@@ -343,17 +393,19 @@ def race_record(record: dict, subraces: list[dict] | None = None) -> dict:
         "languages": languages,
         "subraces": race_subraces or None,
         "description": f"{description}\n\n{source_note(record)}".strip(),
+        # "source_book": source_book,
     }
 
 
 def class_records(data: dict) -> list[dict]:
+    """Mapea las clases de personajes y sus características."""
     classes = srd_records(data, "class")
     features_by_class: dict[tuple[str, str], dict[str, list[dict]]] = defaultdict(
         lambda: defaultdict(list)
     )
+
+    # Iteramos sobre TODAS las características de clase, ya que quitamos el filtro SRD
     for feature in data.get("classFeature", []):
-        if feature.get("srd") is not True:
-            continue
         key = (feature.get("className", ""), feature.get("classSource", ""))
         if key[0]:
             features_by_class[key][str(feature.get("level", 0))].append(
@@ -362,17 +414,20 @@ def class_records(data: dict) -> list[dict]:
                     "description": plain_text(feature.get("entries", [])),
                 }
             )
+
     output = []
     for record in classes:
         name = record["name"]
         source = record.get("source", "")
         proficiencies = record.get("startingProficiencies", {})
         skills = proficiencies.get("skills", []) or []
+
         primary_ability = record.get("primaryAbility")
         if not primary_ability:
             primary_ability = list(
                 record.get("multiclassing", {}).get("requirements", {}).keys()
             )
+
         if isinstance(primary_ability, str):
             primary_ability = [primary_ability]
         elif isinstance(primary_ability, dict):
@@ -380,6 +435,7 @@ def class_records(data: dict) -> list[dict]:
         primary_ability = {
             ability.upper(): True for ability in primary_ability
         }
+
         skill_choice = next(
             (
                 choice["choose"]
@@ -388,12 +444,17 @@ def class_records(data: dict) -> list[dict]:
             ),
             {},
         )
+
         features = dict(features_by_class[(name, source)])
         proficiencies = {
             **proficiencies,
             "armor": list_text(proficiencies.get("armor")) or [],
             "weapons": list_text(proficiencies.get("weapons")) or [],
         }
+        
+        # MODIFICACIÓN (C)
+        source_book = source
+
         output.append(
             {
                 "name": name,
@@ -416,15 +477,17 @@ def class_records(data: dict) -> list[dict]:
                     if key in record
                 } or None,
                 "description": (
-                    f"{name} class data from the 2014 SRD. "
+                    f"{name} class data. "
                     f"See Features for the level progression. {source_note(record)}"
                 ),
+                # "source_book": source_book,
             }
         )
     return output
 
 
 def equipment_record(record: dict) -> dict:
+    """Mapea el equipamiento y objetos mágicos."""
     value = record.get("value", 0)
     if isinstance(value, (int, float)):
         cost = f"{value / 100:g} gp" if value >= 100 else (
@@ -432,6 +495,7 @@ def equipment_record(record: dict) -> dict:
         )
     else:
         cost = str(value or "0 cp")
+
     item_type = record.get("type", "")
     category = (
         "Weapon" if record.get("weapon") else
@@ -439,6 +503,7 @@ def equipment_record(record: dict) -> dict:
         "Tools" if item_type in {"AT", "INS"} else
         "Adventuring Gear"
     )
+
     details = {
         key: record[key]
         for key in (
@@ -447,9 +512,14 @@ def equipment_record(record: dict) -> dict:
         )
         if key in record
     }
+
     description = plain_text(
         record.get("entries", record.get("additionalEntries", []))
     )
+    
+    # MODIFICACIÓN (C)
+    source_book = record.get("source", "PHB")
+
     return {
         "name": record["name"],
         "category": str(category),
@@ -462,11 +532,14 @@ def equipment_record(record: dict) -> dict:
         ),
         "properties": details,
         "description": f"{description}\n\n{source_note(record)}".strip(),
+        "source_book": source_book,
     }
 
 
 def upsert(session: Session, model: type, data: dict) -> None:
+    """Inserta o actualiza un registro basándose en su nombre."""
     existing = session.exec(select(model).where(model.name == data["name"])).first()
+
     if existing is None:
         session.add(model(**data))
         return
@@ -475,39 +548,51 @@ def upsert(session: Session, model: type, data: dict) -> None:
 
 
 def load_srd_payload() -> dict[str, list[dict]]:
+    """Descarga e itera sobre los archivos JSON configurados."""
     payload = {key: [] for key in ("spells", "monsters", "races", "classes", "equipment")}
+
     for file_name in DATA_FILES:
-        data = fetch_json(file_name)
-        if file_name.startswith("spells/"):
-            payload["spells"].extend(map(spell_record, srd_records(data, "spell")))
-        elif file_name.startswith("bestiary/"):
-            payload["monsters"].extend(map(monster_record, srd_records(data, "monster")))
-        elif file_name == "races.json":
-            subraces_by_parent: dict[tuple[str, str], list[dict]] = defaultdict(list)
-            for subrace in srd_records(data, "subrace"):
-                parent = (subrace.get("raceName", ""), subrace.get("raceSource", ""))
-                if parent[0] and subrace.get("name"):
-                    subraces_by_parent[parent].append(subrace)
-            payload["races"].extend(
-                race_record(
-                    race,
-                    subraces_by_parent.get(
-                        (race.get("name", ""), race.get("source", "")), []
-                    ),
+        try:
+            data = fetch_json(file_name)
+            if file_name.startswith("spells/"):
+                payload["spells"].extend(map(spell_record, srd_records(data, "spell")))
+            elif file_name.startswith("bestiary/"):
+                payload["monsters"].extend(map(monster_record, srd_records(data, "monster")))
+            elif file_name == "races.json":
+                subraces_by_parent: dict[tuple[str, str], list[dict]] = defaultdict(list)
+                for subrace in srd_records(data, "subrace"):
+                    parent = (subrace.get("raceName", ""), subrace.get("raceSource", ""))
+                    if parent[0] and subrace.get("name"):
+                        subraces_by_parent[parent].append(subrace)
+
+                payload["races"].extend(
+                    race_record(
+                        race,
+                        subraces_by_parent.get(
+                            (race.get("name", ""), race.get("source", "")), []
+                        ),
+                    )
+                    for race in srd_records(data, "race")
                 )
-                for race in srd_records(data, "race")
-            )
-        else:
-            key = "item" if file_name == "items.json" else "baseitem"
-            payload["equipment"].extend(
-                map(equipment_record, srd_records(data, key))
-            )
-    for file_name in CLASS_FILES:
-        payload["classes"].extend(class_records(fetch_json(f"class/{file_name}")))
+            else:
+                key = "item" if file_name == "items.json" else "baseitem"
+                payload["equipment"].extend(
+                    map(equipment_record, srd_records(data, key))
+                )
+        except Exception as e:
+            print(f"Error procesando {file_name}: {e}")
+
+    for file_path in CLASS_FILES:
+        try:
+            payload["classes"].extend(class_records(fetch_json(file_path)))
+        except Exception as e:
+            print(f"Error procesando {file_path}: {e}")
+
     return payload
 
 
 def import_payload(session: Session, payload: dict[str, Iterable[dict]]) -> dict[str, int]:
+    """Persiste todos los datos descargados en la base de datos local."""
     models = {
         "spells": Spell,
         "monsters": Monster,
@@ -516,34 +601,43 @@ def import_payload(session: Session, payload: dict[str, Iterable[dict]]) -> dict
         "equipment": Equipment,
     }
     counts = {}
+
     for section, model in models.items():
         records = list(payload.get(section, []))
         for record in records:
             upsert(session, model, record)
         counts[section] = len(records)
+
     session.commit()
     return counts
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Import entries explicitly marked SRD into the local database."
+        description="Import D&D 5e entries from 5etools into the local database."
     )
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Download and count SRD entries without writing to PostgreSQL.",
+        help="Download and count entries without writing to PostgreSQL.",
     )
     args = parser.parse_args()
+
+    print("Descargando archivos desde 5etools... (Esto puede tomar unos minutos)")
     payload = load_srd_payload()
     counts = {section: len(records) for section, records in payload.items()}
+
     if args.dry_run:
+        print("Dry run completado. Resultados que se insertarían:")
         print(json.dumps(counts, indent=2))
         return
-    from app.db.database import engine
 
+    print("Insertando datos en PostgreSQL...")
+    from app.db.database import engine
     with Session(engine) as session:
-        print(json.dumps(import_payload(session, payload), indent=2))
+        result = import_payload(session, payload)
+        print("Importación completada con éxito:")
+        print(json.dumps(result, indent=2))
 
 
 if __name__ == "__main__":

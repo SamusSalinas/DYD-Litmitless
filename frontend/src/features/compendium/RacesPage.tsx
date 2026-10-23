@@ -9,21 +9,21 @@ export default function RacesPage() {
   const { data: races, isLoading, isError, refetch } = useRaces();
 
   return (
-    <div className="p-6 bg-zinc-950 text-zinc-100 min-h-screen">
-      <h1 className="text-4xl font-serif text-red-700 mb-6 border-b border-red-900 pb-2">Races</h1>
+    <div className="p-6 text-zinc-100">
+      <h1 className="text-4xl font-serif text-dnd-gold mb-6 border-b border-dnd-teal/30 pb-2">Races</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {isLoading ? (
-          Array.from({length: 6}).map((_, i) => <Skeleton key={i} className="h-48 bg-zinc-900 rounded-lg" />)
+          Array.from({length: 6}).map((_, i) => <Skeleton key={i} className="h-48 bg-dnd-card rounded-lg" />)
         ) : isError ? (
           <QueryError message="Could not load races." onRetry={() => void refetch()} />
         ) : !races?.length ? (
           <p className="text-zinc-400">No races found. Load the sample compendium to get started.</p>
         ) : races.map(race => (
           <Link key={race.id} to={`/races/${race.id}`}>
-            <Card className="bg-zinc-900 border-zinc-800 hover:border-red-900 transition-colors h-full flex flex-col cursor-pointer">
+            <Card className="bg-dnd-card border-dnd-border hover:border-dnd-teal/60 transition-all duration-300 h-full flex flex-col cursor-pointer group hover:shadow-[0_0_25px_rgba(49,170,169,0.12)] hover:-translate-y-0.5">
               <CardHeader className="pb-2">
-                <CardTitle className="text-2xl font-serif text-red-500 flex justify-between items-center">
+                <CardTitle className="text-2xl font-serif text-dnd-gold group-hover:text-dnd-teal transition-colors flex justify-between items-center">
                   {race.name}
                   <span className="text-sm font-sans text-zinc-400">{race.size}</span>
                 </CardTitle>
@@ -36,7 +36,7 @@ export default function RacesPage() {
                   <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Ability Bonuses</p>
                   <div className="flex flex-wrap gap-2">
                     {Object.entries(race.ability_bonuses).map(([ab, val]) => (
-                      <Badge key={ab} variant="secondary" className="bg-zinc-800">
+                      <Badge key={ab} variant="secondary" className="bg-dnd-surface">
                         {ab.toUpperCase()} +{val}
                       </Badge>
                     ))}

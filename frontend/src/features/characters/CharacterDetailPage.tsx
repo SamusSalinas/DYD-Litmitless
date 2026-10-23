@@ -71,12 +71,12 @@ export function CharacterDetailPage() {
     <div className="container mx-auto py-8 text-zinc-200">
       <div className="mb-6 flex justify-between items-start">
         <div>
-          <h1 className="text-4xl font-serif text-[#8B0000] mb-2">{char.name}</h1>
+          <h1 className="text-4xl font-serif text-dnd-gold mb-2">{char.name}</h1>
           <p className="text-xl text-zinc-400">Level {char.level} {char.race} {char.character_class}</p>
         </div>
         <div className="flex gap-3">
           <Link to="/characters">
-            <Button variant="outline" className="border-zinc-700 text-zinc-300">Back</Button>
+            <Button variant="outline" className="border-dnd-border text-zinc-300 hover:text-dnd-gold transition-colors">Back</Button>
           </Link>
           <Button variant="outline" onClick={beginEditing}>Edit</Button>
           <Button variant="destructive" onClick={handleDelete}>Delete</Button>
@@ -86,7 +86,7 @@ export function CharacterDetailPage() {
       {isEditing && (
         <form
           onSubmit={handleUpdate}
-          className="mb-8 grid gap-4 rounded-lg border border-zinc-800 bg-zinc-900 p-6 md:grid-cols-3"
+          className="mb-8 grid gap-4 rounded-lg border border-dnd-border bg-dnd-card p-6 md:grid-cols-3"
         >
           <label className="space-y-2 text-sm text-zinc-300">
             Name
@@ -113,7 +113,7 @@ export function CharacterDetailPage() {
             <textarea
               value={backstory}
               onChange={(event) => setBackstory(event.target.value)}
-              className="min-h-24 w-full rounded-md border border-zinc-700 bg-zinc-950 p-3 text-zinc-100"
+              className="min-h-24 w-full rounded-md border border-dnd-border bg-dnd-bg p-3 text-zinc-100"
             />
           </label>
           {updateMutation.isError && (
@@ -145,50 +145,50 @@ export function CharacterDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="space-y-8">
-          <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
+          <div className="bg-dnd-card p-6 rounded-lg border border-dnd-border">
             <div className="grid grid-cols-3 gap-4 text-center mb-6">
-              <div className="p-4 bg-zinc-950 rounded border border-zinc-800">
+              <div className="p-4 bg-dnd-bg rounded border border-dnd-border">
                 <div className="text-sm text-zinc-400">Armor Class</div>
-                <div className="text-2xl font-bold">{char.armor_class}</div>
+                <div className="text-2xl font-bold text-dnd-gold">{char.armor_class}</div>
               </div>
-              <div className="p-4 bg-zinc-950 rounded border border-zinc-800">
+              <div className="p-4 bg-dnd-bg rounded border border-dnd-border">
                 <div className="text-sm text-zinc-400">Hit Points</div>
-                <div className="text-2xl font-bold">{char.hit_points} / {char.max_hit_points}</div>
+                <div className="text-2xl font-bold text-dnd-teal">{char.hit_points} / {char.max_hit_points}</div>
               </div>
-              <div className="p-4 bg-zinc-950 rounded border border-zinc-800">
+              <div className="p-4 bg-dnd-bg rounded border border-dnd-border">
                 <div className="text-sm text-zinc-400">Speed</div>
                 <div className="text-2xl font-bold">{char.speed}</div>
               </div>
             </div>
 
             <div className="text-center mb-6">
-              <span className="text-zinc-400">Proficiency Bonus:</span> <span className="font-bold">+{char.proficiency_bonus}</span>
+              <span className="text-zinc-400">Proficiency Bonus:</span> <span className="font-bold text-dnd-gold">+{char.proficiency_bonus}</span>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'].map(stat => (
-                <div key={stat} className="bg-zinc-950 p-4 rounded text-center border border-zinc-800">
+                <div key={stat} className="bg-dnd-bg p-4 rounded text-center border border-dnd-border">
                   <div className="text-sm font-bold text-zinc-500 mb-1">{stat}</div>
                   <div className="text-3xl font-serif">{char.ability_scores[stat] || 10}</div>
-                  <div className="text-sm text-zinc-400 mt-1">{getMod(char.ability_scores[stat] || 10)}</div>
+                  <div className="text-sm text-dnd-teal mt-1">{getMod(char.ability_scores[stat] || 10)}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
-            <h3 className="text-xl font-serif text-[#8B0000] mb-4">Proficiencies</h3>
+          <div className="bg-dnd-card p-6 rounded-lg border border-dnd-border">
+            <h3 className="text-xl font-serif text-dnd-gold mb-4">Proficiencies</h3>
             <div className="space-y-4">
               <div>
                 <h4 className="text-sm text-zinc-400 mb-1">Skills</h4>
                 <div className="flex flex-wrap gap-2">
-                  {char.proficiencies?.skills?.map(s => <span key={s} className="bg-zinc-800 px-2 py-1 rounded text-sm">{s}</span>)}
+                  {char.proficiencies?.skills?.map(s => <span key={s} className="bg-dnd-surface px-2 py-1 rounded text-sm">{s}</span>)}
                 </div>
               </div>
               <div>
                 <h4 className="text-sm text-zinc-400 mb-1">Languages</h4>
                 <div className="flex flex-wrap gap-2">
-                  {char.proficiencies?.languages?.map(l => <span key={l} className="bg-zinc-800 px-2 py-1 rounded text-sm">{l}</span>)}
+                  {char.proficiencies?.languages?.map(l => <span key={l} className="bg-dnd-surface px-2 py-1 rounded text-sm">{l}</span>)}
                 </div>
               </div>
             </div>
@@ -196,11 +196,11 @@ export function CharacterDetailPage() {
         </div>
 
         <div className="lg:col-span-2 space-y-8">
-          <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
-            <h3 className="text-xl font-serif text-[#8B0000] mb-4">Features & Traits</h3>
+          <div className="bg-dnd-card p-6 rounded-lg border border-dnd-border">
+            <h3 className="text-xl font-serif text-dnd-gold mb-4">Features & Traits</h3>
             <div className="space-y-4">
               {char.features?.map((f, i) => (
-                <div key={i} className="bg-zinc-950 p-4 rounded border border-zinc-800">
+                <div key={i} className="bg-dnd-bg p-4 rounded border border-dnd-border">
                   <h4 className="font-bold mb-2">{f.name}</h4>
                   <p className="text-zinc-400 text-sm whitespace-pre-line">{f.description}</p>
                 </div>
@@ -208,8 +208,8 @@ export function CharacterDetailPage() {
             </div>
           </div>
 
-          <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
-            <h3 className="text-xl font-serif text-[#8B0000] mb-4">Equipment</h3>
+          <div className="bg-dnd-card p-6 rounded-lg border border-dnd-border">
+            <h3 className="text-xl font-serif text-dnd-gold mb-4">Equipment</h3>
             <ul className="list-disc list-inside text-zinc-400">
               {char.equipment?.map((eq, i) => (
                 <li key={i}>{eq}</li>
@@ -218,8 +218,8 @@ export function CharacterDetailPage() {
           </div>
 
           {(char.background || char.alignment || char.backstory) && (
-            <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
-              <h3 className="text-xl font-serif text-[#8B0000] mb-4">Details</h3>
+            <div className="bg-dnd-card p-6 rounded-lg border border-dnd-border">
+              <h3 className="text-xl font-serif text-dnd-gold mb-4">Details</h3>
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div><span className="text-zinc-500">Alignment:</span> {char.alignment}</div>
                 <div><span className="text-zinc-500">Background:</span> {char.background}</div>

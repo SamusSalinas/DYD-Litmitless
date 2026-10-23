@@ -11,6 +11,7 @@ class EquipmentBase(BaseModel):
     weight: float | None = None
     properties: dict | None = None
     description: str | None = None
+    source_book: str = "Unknown"
 
 class EquipmentCreate(EquipmentBase):
     pass
@@ -23,6 +24,7 @@ class EquipmentUpdate(BaseModel):
     weight: float | None = None
     properties: dict | None = None
     description: str | None = None
+    source_book: str | None = None
 
 class EquipmentRead(EquipmentBase):
     id: uuid.UUID

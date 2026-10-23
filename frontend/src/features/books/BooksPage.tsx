@@ -20,7 +20,7 @@ export default function BooksPage() {
   return (
     <section className="space-y-6">
       <header>
-        <h1 className="text-4xl font-serif text-[#8B0000]">My rulebooks</h1>
+        <h1 className="text-4xl font-serif text-dnd-gold">My rulebooks</h1>
         <p className="mt-2 text-zinc-400">
           Read your PDF copies locally. The files stay in the project folder and are not uploaded to another service.
         </p>
@@ -28,10 +28,10 @@ export default function BooksPage() {
 
       <div className="grid gap-4 md:grid-cols-3">
         {manuals?.map((manual) => (
-          <article key={manual.id} className="rounded-lg border border-zinc-800 bg-zinc-900 p-5">
-            <BookOpen aria-hidden="true" className="mb-3 size-6 text-red-400" />
+          <article key={manual.id} className="rounded-lg border border-dnd-border bg-dnd-card p-5 hover:border-dnd-teal/40 transition-colors">
+            <BookOpen aria-hidden="true" className="mb-3 size-6 text-dnd-teal" />
             <h2 className="font-serif text-xl text-zinc-100">{manual.title}</h2>
-            <p className={`mt-2 text-sm ${manual.available ? 'text-emerald-400' : 'text-amber-400'}`}>
+            <p className={`mt-2 text-sm ${manual.available ? 'text-emerald-400' : 'text-dnd-gold'}`}>
               {manual.available ? 'PDF available' : 'PDF not found in the project folder'}
             </p>
             <Button
@@ -47,14 +47,14 @@ export default function BooksPage() {
       </div>
 
       {selectedManual && (
-        <section className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800 p-4">
+        <section className="overflow-hidden rounded-lg border border-dnd-border bg-dnd-card">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-dnd-border p-4">
             <h2 className="font-serif text-xl text-zinc-100">{selectedManual.title}</h2>
             <a
               href={`http://localhost:8000${selectedManual.url}`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 text-sm text-red-300 hover:text-red-200"
+              className="inline-flex items-center gap-2 text-sm text-dnd-teal hover:text-dnd-gold transition-colors"
             >
               Open in a new tab <ExternalLink aria-hidden="true" className="size-4" />
             </a>
@@ -63,7 +63,7 @@ export default function BooksPage() {
             key={selectedManual.id}
             title={selectedManual.title}
             src={`http://localhost:8000${selectedManual.url}`}
-            className="h-[75vh] min-h-[36rem] w-full bg-zinc-950"
+            className="h-[75vh] min-h-[36rem] w-full bg-dnd-bg"
           />
         </section>
       )}

@@ -19,5 +19,6 @@ class Spell(SQLModel, table=True):
     classes: list = Field(default_factory=list, sa_column=Column(JSONB))
     ritual: bool = Field(default=False)
     concentration: bool = Field(default=False)
+    source_book: str = "Unknown"
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

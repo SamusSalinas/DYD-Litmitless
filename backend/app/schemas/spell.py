@@ -17,6 +17,7 @@ class SpellBase(BaseModel):
     classes: list[str] = []
     ritual: bool = False
     concentration: bool = False
+    source_book: str = "Unknown"
 
 class SpellCreate(SpellBase):
     pass
@@ -35,6 +36,7 @@ class SpellUpdate(BaseModel):
     classes: list[str] | None = None
     ritual: bool | None = None
     concentration: bool | None = None
+    source_book: str | None = None
 
 class SpellRead(SpellBase):
     id: uuid.UUID
@@ -42,3 +44,8 @@ class SpellRead(SpellBase):
     updated_at: datetime
     
     model_config = ConfigDict(from_attributes=True)
+
+class SpellFilter(BaseModel):
+    name: str | None = None
+    level: int | None = None
+    school: str | None = None

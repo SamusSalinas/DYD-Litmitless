@@ -5,8 +5,11 @@ from app.services import spell_service
 router = APIRouter()
 
 @router.get("/")
-def read_all(session: SessionDep):
-    return spell_service.get_all(session)
+def read_all(session: SessionDep, name: str | None = None, level: int | None = None, school: str | None = None):
+    """Return spells filtered by optional query parameters.
+    Supports partial name matching, exact level, and school filters.
+    """
+    return spell_service.get_all(session, name=name, level=level, school=school)
 
 @router.get("/{id}")
 def read_by_id(session: SessionDep, id: str):

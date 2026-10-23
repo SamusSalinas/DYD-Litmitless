@@ -10,10 +10,10 @@ export function CharacterListPage() {
   if (isLoading) {
     return (
       <div className="container mx-auto py-8 text-zinc-200">
-        <h1 className="text-3xl font-serif text-[#8B0000] mb-6">Your Characters</h1>
+        <h1 className="text-3xl font-serif text-dnd-gold mb-6">Your Characters</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-40 bg-zinc-900 animate-pulse rounded-lg border border-zinc-800" />
+            <div key={i} className="h-40 bg-dnd-card animate-pulse rounded-lg border border-dnd-border" />
           ))}
         </div>
       </div>
@@ -31,9 +31,9 @@ export function CharacterListPage() {
   return (
     <div className="container mx-auto py-8 text-zinc-200">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-serif text-[#8B0000]">Your Characters</h1>
+        <h1 className="text-3xl font-serif text-dnd-gold">Your Characters</h1>
         <Link to="/characters/new">
-          <Button className="bg-[#8B0000] text-white hover:bg-[#6b0000]">Create New Character</Button>
+          <Button className="bg-dnd-red text-white hover:bg-dnd-dark transition-colors">Create New Character</Button>
         </Link>
       </div>
 
@@ -44,10 +44,10 @@ export function CharacterListPage() {
       )}
 
       {!characters?.length ? (
-        <div className="text-center py-12 bg-zinc-900 rounded-lg border border-zinc-800">
+        <div className="text-center py-12 bg-dnd-card rounded-lg border border-dnd-border">
           <p className="text-zinc-400 mb-4">You haven't created any characters yet.</p>
           <Link to="/characters/new">
-            <Button variant="outline" className="text-[#8B0000] border-[#8B0000] hover:bg-[#8B0000] hover:text-white">
+            <Button variant="outline" className="text-dnd-teal border-dnd-teal hover:bg-dnd-teal hover:text-white transition-colors">
               Start your journey
             </Button>
           </Link>
@@ -55,9 +55,9 @@ export function CharacterListPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {characters.map((char) => (
-            <div key={char.id} className="bg-zinc-900 p-6 rounded-lg border border-zinc-800 hover:border-[#8B0000] transition-colors relative">
+            <div key={char.id} className="bg-dnd-card p-6 rounded-lg border border-dnd-border hover:border-dnd-teal/60 transition-all duration-300 relative group hover:shadow-[0_0_25px_rgba(49,170,169,0.12)] hover:-translate-y-0.5">
               <Link to={`/characters/${char.id}`} className="block h-full">
-                <h2 className="text-xl font-serif font-bold mb-2">{char.name}</h2>
+                <h2 className="text-xl font-serif font-bold mb-2 group-hover:text-dnd-gold transition-colors">{char.name}</h2>
                 <div className="text-sm text-zinc-400 space-y-1">
                   <p>Level {char.level} {char.race} {char.character_class}</p>
                 </div>

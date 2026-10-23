@@ -49,6 +49,14 @@ uvicorn app.main:app --reload
 
 La API y documentación interactiva estarán en <http://localhost:8000> y <http://localhost:8000/docs>. El endpoint `/api/health` comprueba también la conexión a PostgreSQL. En el arranque local, las tablas se crean desde los modelos SQLModel.
 
+Para actualizar una base existente con los cambios versionados del esquema, desde `backend` ejecuta:
+
+```powershell
+.\.venv\Scripts\alembic.exe upgrade head
+```
+
+La migración crea `equipment` si falta y añade las columnas de origen/token que falten, sin importar datos. Ejecuta este comando contra la misma base configurada en `DATABASE_URL` antes de usar el importador.
+
 ### 4. Iniciar el frontend
 
 En otra terminal:

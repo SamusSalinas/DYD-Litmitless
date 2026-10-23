@@ -19,20 +19,20 @@ export default function SpellsPage() {
   });
 
   return (
-    <div className="p-6 bg-zinc-950 text-zinc-100 min-h-screen">
-      <h1 className="text-4xl font-serif text-red-700 mb-6 border-b border-red-900 pb-2">Spells</h1>
+    <div className="p-6 text-zinc-100">
+      <h1 className="text-4xl font-serif text-dnd-gold mb-6 border-b border-dnd-teal/30 pb-2">Spells</h1>
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <Input 
           placeholder="Search spells..." 
           value={nameFilter} 
           onChange={(e) => setNameFilter(e.target.value)} 
-          className="bg-zinc-900 border-zinc-700 text-white w-full md:w-1/3"
+          className="bg-dnd-card border-dnd-border text-white w-full md:w-1/3 focus:border-dnd-teal"
         />
         <Select value={levelFilter} onValueChange={setLevelFilter}>
-          <SelectTrigger className="w-full md:w-[180px] bg-zinc-900 border-zinc-700">
+          <SelectTrigger className="w-full md:w-[180px] bg-dnd-card border-dnd-border">
             <SelectValue placeholder="Level" />
           </SelectTrigger>
-          <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
+          <SelectContent className="bg-dnd-surface border-dnd-border text-white">
             <SelectItem value="all">All Levels</SelectItem>
             {[0,1,2,3,4,5,6,7,8,9].map(l => (
               <SelectItem key={l} value={l.toString()}>{l === 0 ? 'Cantrip' : `Level ${l}`}</SelectItem>
@@ -40,10 +40,10 @@ export default function SpellsPage() {
           </SelectContent>
         </Select>
         <Select value={schoolFilter} onValueChange={setSchoolFilter}>
-          <SelectTrigger className="w-full md:w-[180px] bg-zinc-900 border-zinc-700">
+          <SelectTrigger className="w-full md:w-[180px] bg-dnd-card border-dnd-border">
             <SelectValue placeholder="School" />
           </SelectTrigger>
-          <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
+          <SelectContent className="bg-dnd-surface border-dnd-border text-white">
             <SelectItem value="all">All Schools</SelectItem>
             {['Abjuration','Conjuration','Divination','Enchantment','Evocation','Illusion','Necromancy','Transmutation'].map(s => (
               <SelectItem key={s} value={s}>{s}</SelectItem>
@@ -52,10 +52,10 @@ export default function SpellsPage() {
         </Select>
       </div>
 
-      <div className="border border-zinc-800 rounded-md overflow-hidden bg-zinc-900">
+      <div className="border border-dnd-border rounded-md overflow-hidden bg-dnd-card">
         <Table>
           <TableHeader>
-            <TableRow className="border-zinc-800 hover:bg-zinc-800">
+            <TableRow className="border-dnd-border hover:bg-dnd-surface">
               <TableHead className="text-zinc-400">Name</TableHead>
               <TableHead className="text-zinc-400">Level</TableHead>
               <TableHead className="text-zinc-400">School</TableHead>
@@ -66,12 +66,12 @@ export default function SpellsPage() {
           <TableBody>
             {isLoading ? (
               Array.from({length: 5}).map((_, i) => (
-                <TableRow key={i} className="border-zinc-800">
-                  <TableCell><Skeleton className="h-4 w-32 bg-zinc-800" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-12 bg-zinc-800" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-24 bg-zinc-800" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-24 bg-zinc-800" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-24 bg-zinc-800" /></TableCell>
+                <TableRow key={i} className="border-dnd-border">
+                  <TableCell><Skeleton className="h-4 w-32 bg-dnd-surface" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-12 bg-dnd-surface" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-24 bg-dnd-surface" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-24 bg-dnd-surface" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-24 bg-dnd-surface" /></TableCell>
                 </TableRow>
               ))
             ) : isError ? (
@@ -79,14 +79,14 @@ export default function SpellsPage() {
             ) : !spells?.length ? (
               <TableRow><TableCell colSpan={5} className="text-zinc-400">No spells found.</TableCell></TableRow>
             ) : spells.map(spell => (
-              <TableRow key={spell.id} className="border-zinc-800 hover:bg-zinc-800/50 transition-colors">
+              <TableRow key={spell.id} className="border-dnd-border hover:bg-dnd-surface/50 transition-colors">
                 <TableCell>
-                  <Link to={`/spells/${spell.id}`} className="text-red-400 hover:text-red-300 font-medium">
+                  <Link to={`/spells/${spell.id}`} className="text-dnd-teal hover:text-dnd-gold font-medium transition-colors">
                     {spell.name}
                   </Link>
                   <div className="flex gap-2 mt-1 text-xs text-zinc-500">
-                    {spell.ritual && <span className="bg-zinc-800 px-1 rounded">Ritual</span>}
-                    {spell.concentration && <span className="bg-zinc-800 px-1 rounded">Conc</span>}
+                    {spell.ritual && <span className="bg-dnd-surface px-1 rounded">Ritual</span>}
+                    {spell.concentration && <span className="bg-dnd-surface px-1 rounded">Conc</span>}
                   </div>
                 </TableCell>
                 <TableCell>{spell.level === 0 ? 'Cantrip' : spell.level}</TableCell>

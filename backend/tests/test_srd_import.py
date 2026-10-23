@@ -1,6 +1,7 @@
 from scripts.import_srd import (
     challenge_rating,
     class_records,
+    equipment_record,
     monster_record,
     plain_text,
     spell_record,
@@ -59,6 +60,7 @@ def test_spell_mapping_preserves_fields_and_license_attribution():
     assert spell["classes"] == ["Wizard"]
     assert spell["ritual"] is True
     assert "CC BY 4.0" in spell["description"]
+    assert spell["source_book"] == "PHB"
 
 
 def test_monster_mapping_handles_fractional_cr_and_reduces_alignment():
@@ -86,6 +88,7 @@ def test_monster_mapping_handles_fractional_cr_and_reduces_alignment():
             "passive": 10,
             "languages": [],
             "cr": "1/8",
+            "hasToken": True,
         }
     )
 
@@ -94,10 +97,20 @@ def test_monster_mapping_handles_fractional_cr_and_reduces_alignment():
     assert monster["alignment"] == "Neutral Good"
     assert monster["challenge_rating"] == 0.125
     assert monster["xp"] == 25
+    assert monster["source_book"] == "MM"
+    assert monster["has_token"] is True
     assert monster["speeds"] == {"walk": 30, "fly": 40}
     assert "can hover" in monster["description"].lower()
     assert "while near its nest" in monster["description"]
     assert challenge_rating({"cr": "1/4", "xp": 60}) == (0.25, 60)
+
+
+def test_equipment_mapping_includes_source_book():
+    equipment = equipment_record(
+        {"name": "Sample Weapon", "source": "PHB", "value": 100}
+    )
+
+    assert equipment["source_book"] == "PHB"
 
 
 def test_class_mapping_matches_compendium_page_contract_and_filters_features():

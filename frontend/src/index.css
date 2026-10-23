@@ -1,1 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
+
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #31AAA9 #0f0f14;
+  }
+
+  ::selection {
+    background: rgba(49, 170, 169, 0.3);
+    color: #F8E0A4;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #0f0f14;
+    color: #e4e4e7;
+  }
+}
+
+@layer components {
+  /* Glassmorphism container */
+  .glass {
+    background: rgba(49, 170, 169, 0.08);
+    border: 1px solid rgba(49, 170, 169, 0.15);
+    border-radius: 1rem;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Glow accent on hover */
+  .glow-teal {
+    box-shadow: 0 0 20px rgba(49, 170, 169, 0.15);
+    transition: box-shadow 0.3s ease;
+  }
+  .glow-teal:hover {
+    box-shadow: 0 0 30px rgba(49, 170, 169, 0.3);
+  }
+
+  .glow-gold {
+    box-shadow: 0 0 20px rgba(248, 224, 164, 0.1);
+    transition: box-shadow 0.3s ease;
+  }
+  .glow-gold:hover {
+    box-shadow: 0 0 30px rgba(248, 224, 164, 0.25);
+  }
+}

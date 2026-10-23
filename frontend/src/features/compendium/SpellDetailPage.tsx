@@ -10,27 +10,27 @@ export default function SpellDetailPage() {
   const { id } = useParams();
   const { data: spell, isLoading, isError, refetch } = useSpell(id ?? '');
 
-  if (isLoading) return <div className="p-6 bg-zinc-950 min-h-screen"><Skeleton className="h-64 w-full bg-zinc-800" /></div>;
-  if (isError) return <div className="p-6 bg-zinc-950 min-h-screen"><QueryError message="Could not load this spell." onRetry={() => void refetch()} /></div>;
-  if (!spell) return <div className="p-6 bg-zinc-950 text-white min-h-screen">Spell not found</div>;
+  if (isLoading) return <div className="p-6"><Skeleton className="h-64 w-full bg-dnd-surface" /></div>;
+  if (isError) return <div className="p-6"><QueryError message="Could not load this spell." onRetry={() => void refetch()} /></div>;
+  if (!spell) return <div className="p-6 text-white">Spell not found</div>;
 
   return (
-    <div className="p-6 bg-zinc-950 text-zinc-100 min-h-screen">
+    <div className="p-6 text-zinc-100">
       <Link to="/spells">
-        <Button variant="outline" className="mb-6 border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+        <Button variant="outline" className="mb-6 border-dnd-border text-zinc-300 hover:bg-dnd-surface hover:text-dnd-gold transition-colors">
           &larr; Back to Spells
         </Button>
       </Link>
       
-      <Card className="bg-zinc-900 border-zinc-800 text-zinc-100">
-        <CardHeader className="border-b border-zinc-800">
-          <CardTitle className="text-3xl font-serif text-red-500 flex items-center justify-between">
+      <Card className="bg-dnd-card border-dnd-border text-zinc-100">
+        <CardHeader className="border-b border-dnd-border">
+          <CardTitle className="text-3xl font-serif text-dnd-gold flex items-center justify-between">
             {spell.name}
             <div className="flex gap-2 text-sm font-sans">
-              <Badge variant="secondary" className="bg-zinc-800 text-zinc-300">{spell.level === 0 ? 'Cantrip' : `Level ${spell.level}`}</Badge>
-              <Badge variant="secondary" className="bg-zinc-800 text-zinc-300">{spell.school}</Badge>
-              {spell.ritual && <Badge variant="outline" className="text-blue-400 border-blue-900">Ritual</Badge>}
-              {spell.concentration && <Badge variant="outline" className="text-orange-400 border-orange-900">Concentration</Badge>}
+              <Badge variant="secondary" className="bg-dnd-surface text-zinc-300">{spell.level === 0 ? 'Cantrip' : `Level ${spell.level}`}</Badge>
+              <Badge variant="secondary" className="bg-dnd-surface text-zinc-300">{spell.school}</Badge>
+              {spell.ritual && <Badge variant="outline" className="text-dnd-teal border-dnd-teal/50">Ritual</Badge>}
+              {spell.concentration && <Badge variant="outline" className="text-dnd-gold border-dnd-gold/50">Concentration</Badge>}
             </div>
           </CardTitle>
         </CardHeader>
@@ -54,8 +54,8 @@ export default function SpellDetailPage() {
             </div>
           </div>
           
-          <div className="mt-8 border-t border-zinc-800 pt-6">
-            <h3 className="text-xl font-serif text-red-400 mb-2">Description</h3>
+          <div className="mt-8 border-t border-dnd-border pt-6">
+            <h3 className="text-xl font-serif text-dnd-teal mb-2">Description</h3>
             <div className="space-y-4 text-zinc-300 leading-relaxed whitespace-pre-wrap">
               {spell.description}
             </div>
@@ -63,18 +63,18 @@ export default function SpellDetailPage() {
           
           {spell.higher_levels && (
             <div className="mt-6">
-              <h3 className="text-lg font-serif text-red-400 mb-2">At Higher Levels</h3>
+              <h3 className="text-lg font-serif text-dnd-teal mb-2">At Higher Levels</h3>
               {Object.entries(spell.higher_levels).map(([level, description]) => (
                 <p key={level} className="text-zinc-300 leading-relaxed">{description}</p>
               ))}
             </div>
           )}
           
-          <div className="mt-6 pt-6 border-t border-zinc-800">
+          <div className="mt-6 pt-6 border-t border-dnd-border">
             <p className="text-zinc-500 text-sm font-bold uppercase tracking-wider mb-2">Classes</p>
             <div className="flex gap-2">
               {spell.classes.map(c => (
-                <Badge key={c} variant="secondary" className="bg-zinc-800">{c}</Badge>
+                <Badge key={c} variant="secondary" className="bg-dnd-surface">{c}</Badge>
               ))}
             </div>
           </div>

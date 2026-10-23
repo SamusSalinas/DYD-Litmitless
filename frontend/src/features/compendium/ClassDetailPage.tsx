@@ -11,46 +11,46 @@ export default function ClassDetailPage() {
   const { id } = useParams();
   const { data: cls, isLoading, isError, refetch } = useClass(id);
 
-  if (isLoading) return <div className="p-6 bg-zinc-950 min-h-screen"><Skeleton className="h-64 w-full bg-zinc-800" /></div>;
-  if (isError) return <div className="p-6 bg-zinc-950 min-h-screen"><QueryError message="Could not load this class." onRetry={() => void refetch()} /></div>;
-  if (!cls) return <div className="p-6 bg-zinc-950 text-white min-h-screen">Class not found</div>;
+  if (isLoading) return <div className="p-6"><Skeleton className="h-64 w-full bg-dnd-surface" /></div>;
+  if (isError) return <div className="p-6"><QueryError message="Could not load this class." onRetry={() => void refetch()} /></div>;
+  if (!cls) return <div className="p-6 text-white">Class not found</div>;
 
   return (
-    <div className="p-6 bg-zinc-950 text-zinc-100 min-h-screen">
+    <div className="p-6 text-zinc-100">
       <Link to="/classes">
-        <Button variant="outline" className="mb-6 border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+        <Button variant="outline" className="mb-6 border-dnd-border text-zinc-300 hover:bg-dnd-surface hover:text-dnd-gold transition-colors">
           &larr; Back to Classes
         </Button>
       </Link>
 
       <div className="mb-8">
-        <h1 className="text-5xl font-serif text-red-600 mb-2">{cls.name}</h1>
+        <h1 className="text-5xl font-serif text-dnd-gold mb-2">{cls.name}</h1>
         <p className="text-zinc-400 text-lg">Hit Die: {cls.hit_die}</p>
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="bg-zinc-900 border-zinc-800 mb-6">
+        <TabsList className="bg-dnd-card border-dnd-border mb-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="proficiencies">Proficiencies</TabsTrigger>
           <TabsTrigger value="features">Features</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="bg-zinc-900 p-6 rounded-md border border-zinc-800">
-          <h2 className="text-2xl font-serif text-red-500 mb-4">Description</h2>
+        <TabsContent value="overview" className="bg-dnd-card p-6 rounded-md border border-dnd-border">
+          <h2 className="text-2xl font-serif text-dnd-gold mb-4">Description</h2>
           <p className="text-zinc-300 leading-relaxed whitespace-pre-wrap">{cls.description}</p>
           
-          <h3 className="text-xl font-serif text-red-400 mt-6 mb-2">Primary Abilities</h3>
+          <h3 className="text-xl font-serif text-dnd-teal mt-6 mb-2">Primary Abilities</h3>
           <div className="flex gap-2">
             {Object.keys(cls.primary_ability).map(k => (
-              <Badge key={k} className="bg-zinc-800 text-zinc-200">{k.toUpperCase()}</Badge>
+              <Badge key={k} className="bg-dnd-surface text-zinc-200">{k.toUpperCase()}</Badge>
             ))}
           </div>
         </TabsContent>
 
-        <TabsContent value="proficiencies" className="bg-zinc-900 p-6 rounded-md border border-zinc-800">
+        <TabsContent value="proficiencies" className="bg-dnd-card p-6 rounded-md border border-dnd-border">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              <h3 className="text-xl font-serif text-red-400 mb-3">Armor & Weapons</h3>
+              <h3 className="text-xl font-serif text-dnd-teal mb-3">Armor & Weapons</h3>
               <div className="space-y-4">
                 <div>
                   <p className="text-zinc-500 text-sm font-bold uppercase tracking-wider mb-1">Armor</p>
@@ -63,7 +63,7 @@ export default function ClassDetailPage() {
               </div>
             </div>
             <div>
-              <h3 className="text-xl font-serif text-red-400 mb-3">Skills</h3>
+              <h3 className="text-xl font-serif text-dnd-teal mb-3">Skills</h3>
               <p className="text-zinc-300 mb-2">Choose {cls.skill_choices.choose} from:</p>
               <ul className="list-disc list-inside text-zinc-400 space-y-1">
                 {cls.skill_choices.from.map(skill => (
@@ -74,17 +74,17 @@ export default function ClassDetailPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="features" className="bg-zinc-900 p-6 rounded-md border border-zinc-800">
+        <TabsContent value="features" className="bg-dnd-card p-6 rounded-md border border-dnd-border">
           <Accordion type="multiple" className="w-full">
             {Object.entries(cls.features_by_level || {}).map(([level, features]) => (
-              <AccordionItem key={level} value={`level-${level}`} className="border-zinc-800">
-                <AccordionTrigger className="text-red-400 hover:text-red-300 font-serif text-xl">
+              <AccordionItem key={level} value={`level-${level}`} className="border-dnd-border">
+                <AccordionTrigger className="text-dnd-teal hover:text-dnd-gold font-serif text-xl transition-colors">
                   Level {level}
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-6 pt-4">
                     {features.map((feat, idx) => (
-                      <div key={idx} className="bg-zinc-950 p-4 rounded border border-zinc-800">
+                      <div key={idx} className="bg-dnd-bg p-4 rounded border border-dnd-border">
                         <h4 className="font-bold text-zinc-200 mb-2">{feat.name}</h4>
                         <p className="text-zinc-400 whitespace-pre-wrap">{feat.description}</p>
                       </div>
