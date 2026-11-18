@@ -1,45 +1,74 @@
 import { Link } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Sparkles,
+  Shield,
+  Wand2,
+  Swords,
+  Users,
+  Skull,
+  User,
+  Dices,
+  BookOpen,
+} from 'lucide-react';
 
 const cards = [
-  { title: "Spells", desc: "Browse and search all spells", link: "/spells", icon: "✨" },
-  { title: "Classes", desc: "Discover character classes", link: "/classes", icon: "⚔️" },
-  { title: "Races", desc: "Explore playable races", link: "/races", icon: "🧝" },
-  { title: "Monsters", desc: "Find foes to fight", link: "/monsters", icon: "🐉" },
-  { title: "Equipment", desc: "Gear up for your adventure", link: "/equipment", icon: "🛡️" },
-  { title: "Rulebooks", desc: "Read your local PDF books", link: "/books", icon: "📚" },
-  { title: "Characters", desc: "Manage your heroes", link: "/characters", icon: "👤" },
+  { title: "Hechizos", desc: "Listas completas de conjuros organizadas por nivel y clase", link: "/spells", icon: Sparkles },
+  { title: "Equipamiento", desc: "Armas, armaduras, herramientas y equipo de aventura", link: "/equipment", icon: Shield },
+  { title: "Objetos Mágicos", desc: "Catálogo clasificado por rareza y sintonización", link: "/magic-items", icon: Wand2 },
+  { title: "Clases", desc: "Clases oficiales, rasgos y progresión por nivel", link: "/classes", icon: Swords },
+  { title: "Razas", desc: "Razas jugables, rasgos y bonificadores de atributo", link: "/races", icon: Users },
+  { title: "Monstruos", desc: "Bestiario con valores de desafío y acciones de combate", link: "/monsters", icon: Skull },
+  { title: "Hojas de Personaje", desc: "Gestión interactiva y subida de nivel en tiempo real", link: "/characters", icon: User },
+  { title: "Tirador de Dados", desc: "Lanzador de dados con animación 3D e historial", link: "/dice", icon: Dices },
+  { title: "Manuales PDF", desc: "Lector web de los libros oficiales locales", link: "/books", icon: BookOpen },
 ];
 
 export default function HomePage() {
   return (
-    <div className="space-y-12">
-      <section className="text-center space-y-4 py-16">
-        <h1 className="text-5xl md:text-7xl font-serif font-bold bg-gradient-to-r from-dnd-gold via-dnd-teal to-dnd-gold bg-clip-text text-transparent animate-pulse">
-          D&D Beyond
-        </h1>
-        <p className="text-xl text-zinc-400 max-w-md mx-auto">
-          Your companion for D&D 5th Edition — explore, create, and adventure.
-        </p>
-        <div className="w-24 h-1 mx-auto bg-gradient-to-r from-dnd-teal to-dnd-gold rounded-full mt-4" />
-      </section>
+    <div className="space-y-8">
+      {/* Cabecera estilo compendio Proyecto */}
+      <header className="cabecera">
+        <div className="cabecera-contenido">
+          <div className="marca-emblema">
+            <Dices className="size-8 text-[#19352b]" />
+          </div>
+          <div>
+            <p className="marca-kicker">Compendio SRD 2014</p>
+            <h1>Compendio &amp; Gestor D&amp;D</h1>
+            <p className="marca-descripcion">
+              Reglas, conjuros, objetos mágicos, fichas de aventurero y utilidades para tus partidas de 5ª Edición.
+            </p>
+          </div>
+        </div>
+      </header>
 
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {cards.map((card) => (
-          <Link key={card.title} to={card.link}>
-            <Card className="bg-dnd-card border-dnd-border hover:border-dnd-teal/60 transition-all duration-300 cursor-pointer h-full group hover:shadow-[0_0_25px_rgba(49,170,169,0.12)] hover:-translate-y-0.5">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3 text-zinc-100 group-hover:text-dnd-gold transition-colors">
-                  <span className="text-2xl group-hover:scale-110 transition-transform">{card.icon}</span>
-                  {card.title}
-                </CardTitle>
-                <CardDescription className="text-zinc-400 group-hover:text-zinc-300 transition-colors">
-                  {card.desc}
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-        ))}
+      {/* Grid de accesos rápidos */}
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {cards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <Link key={card.title} to={card.link} className="group no-underline block">
+              <div className="bg-[#fffdf8] border border-[#e7e0d1] rounded-xl p-5 shadow-sm hover:shadow-md hover:border-[#19352b] transition-all duration-200 h-full flex flex-col justify-between group-hover:-translate-y-0.5">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 rounded-lg bg-[#f8f5ed] border border-[#e7e0d1] text-[#19352b] group-hover:bg-[#19352b] group-hover:text-[#fffaf0] transition-colors">
+                      <Icon className="size-5" />
+                    </div>
+                    <h2 className="text-xl font-serif font-bold text-[#19352b] group-hover:text-[#bd7446] transition-colors m-0">
+                      {card.title}
+                    </h2>
+                  </div>
+                  <p className="text-sm text-[#68756c] leading-relaxed m-0">
+                    {card.desc}
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-[#e7e0d1] flex items-center text-xs font-bold text-[#bd7446] group-hover:text-[#19352b] transition-colors">
+                  Explorar catálogo &rarr;
+                </div>
+              </div>
+            </Link>
+          );
+        })}
       </section>
     </div>
   );

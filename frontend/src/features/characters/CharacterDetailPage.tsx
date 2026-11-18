@@ -41,6 +41,20 @@ export function CharacterDetailPage() {
     setIsEditing(true);
   };
 
+  const handleLevelUp = () => {
+    // Increment level by 1, up to max 20
+    const newLevel = Math.min(char.level + 1, 20);
+    updateMutation.mutate(
+      {
+        id: char.id,
+        name: char.name,
+        level: newLevel,
+        backstory: char.backstory ?? null,
+      },
+      { onSuccess: () => { refetch(); } }
+    );
+  };
+
   const handleUpdate = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     updateMutation.mutate(
@@ -68,18 +82,28 @@ export function CharacterDetailPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 text-zinc-200">
-      <div className="mb-6 flex justify-between items-start">
+    <div className="container mx-auto py-8 text-[#26342e]">
+      <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-[#fffdf8] p-6 rounded-xl border border-[#e7e0d1] shadow-sm">
         <div>
-          <h1 className="text-4xl font-serif text-dnd-gold mb-2">{char.name}</h1>
-          <p className="text-xl text-zinc-400">Level {char.level} {char.race} {char.character_class}</p>
+          <h1 className="text-4xl font-serif font-bold text-[#19352b] mb-1">{char.name}</h1>
+          <div className="flex items-center gap-3">
+            <p className="text-lg text-[#68756c]">Nivel {char.level} {char.race} {char.character_class}</p>
+            <Button
+              variant="outline"
+              onClick={handleLevelUp}
+              disabled={updateMutation.isPending || char.level >= 20}
+              className="bg-[#19352b] text-[#fffaf0] hover:bg-[#315746] border-none font-bold text-xs px-3 py-1.5 h-auto shadow transition-colors"
+            >
+              {updateMutation.isPending ? 'Subiendo...' : '⚡ Subir de Nivel (+1)'}
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <Link to="/characters">
-            <Button variant="outline" className="border-dnd-border text-zinc-300 hover:text-dnd-gold transition-colors">Back</Button>
+            <Button variant="outline" className="border-[#e7e0d1] text-[#19352b] hover:bg-[#f3efe4]">Volver</Button>
           </Link>
-          <Button variant="outline" onClick={beginEditing}>Edit</Button>
-          <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+          <Button variant="outline" onClick={beginEditing} className="border-[#e7e0d1] text-[#19352b] hover:bg-[#f3efe4]">Editar</Button>
+          <Button variant="destructive" onClick={handleDelete} className="bg-[#bd7446] hover:bg-[#86502f] text-white">Eliminar</Button>
         </div>
       </div>
 
@@ -145,50 +169,50 @@ export function CharacterDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="space-y-8">
-          <div className="bg-dnd-card p-6 rounded-lg border border-dnd-border">
+          <div className="bg-[#fffdf8] p-6 rounded-xl border border-[#e7e0d1] shadow-sm">
             <div className="grid grid-cols-3 gap-4 text-center mb-6">
-              <div className="p-4 bg-dnd-bg rounded border border-dnd-border">
-                <div className="text-sm text-zinc-400">Armor Class</div>
-                <div className="text-2xl font-bold text-dnd-gold">{char.armor_class}</div>
+              <div className="p-4 bg-[#f8f5ed] rounded-lg border border-[#e7e0d1]">
+                <div className="text-xs uppercase font-bold text-[#68756c]">Clase Armadura</div>
+                <div className="text-2xl font-bold font-serif text-[#19352b]">{char.armor_class}</div>
               </div>
-              <div className="p-4 bg-dnd-bg rounded border border-dnd-border">
-                <div className="text-sm text-zinc-400">Hit Points</div>
-                <div className="text-2xl font-bold text-dnd-teal">{char.hit_points} / {char.max_hit_points}</div>
+              <div className="p-4 bg-[#f8f5ed] rounded-lg border border-[#e7e0d1]">
+                <div className="text-xs uppercase font-bold text-[#68756c]">Puntos de Golpe</div>
+                <div className="text-2xl font-bold font-serif text-[#bd7446]">{char.hit_points} / {char.max_hit_points}</div>
               </div>
-              <div className="p-4 bg-dnd-bg rounded border border-dnd-border">
-                <div className="text-sm text-zinc-400">Speed</div>
-                <div className="text-2xl font-bold">{char.speed}</div>
+              <div className="p-4 bg-[#f8f5ed] rounded-lg border border-[#e7e0d1]">
+                <div className="text-xs uppercase font-bold text-[#68756c]">Velocidad</div>
+                <div className="text-2xl font-bold font-serif text-[#19352b]">{char.speed} pies</div>
               </div>
             </div>
 
-            <div className="text-center mb-6">
-              <span className="text-zinc-400">Proficiency Bonus:</span> <span className="font-bold text-dnd-gold">+{char.proficiency_bonus}</span>
+            <div className="text-center mb-6 pb-4 border-b border-[#e7e0d1]">
+              <span className="text-[#68756c] font-medium text-sm">Bonificador de Competencia:</span> <span className="font-bold text-[#19352b]">+{char.proficiency_bonus}</span>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'].map(stat => (
-                <div key={stat} className="bg-dnd-bg p-4 rounded text-center border border-dnd-border">
-                  <div className="text-sm font-bold text-zinc-500 mb-1">{stat}</div>
-                  <div className="text-3xl font-serif">{char.ability_scores[stat] || 10}</div>
-                  <div className="text-sm text-dnd-teal mt-1">{getMod(char.ability_scores[stat] || 10)}</div>
+                <div key={stat} className="bg-[#f8f5ed] p-3 rounded-lg text-center border border-[#e7e0d1]">
+                  <div className="text-xs font-bold text-[#68756c] mb-1">{stat}</div>
+                  <div className="text-2xl font-serif font-bold text-[#19352b]">{char.ability_scores[stat] || 10}</div>
+                  <div className="text-xs font-semibold text-[#bd7446] mt-0.5">{getMod(char.ability_scores[stat] || 10)}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="bg-dnd-card p-6 rounded-lg border border-dnd-border">
-            <h3 className="text-xl font-serif text-dnd-gold mb-4">Proficiencies</h3>
+          <div className="bg-[#fffdf8] p-6 rounded-xl border border-[#e7e0d1] shadow-sm">
+            <h3 className="text-lg font-serif font-bold text-[#19352b] mb-4 pb-2 border-b border-[#e7e0d1]">Competencias</h3>
             <div className="space-y-4">
               <div>
-                <h4 className="text-sm text-zinc-400 mb-1">Skills</h4>
-                <div className="flex flex-wrap gap-2">
-                  {char.proficiencies?.skills?.map(s => <span key={s} className="bg-dnd-surface px-2 py-1 rounded text-sm">{s}</span>)}
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#68756c] mb-1.5">Habilidades</h4>
+                <div className="flex flex-wrap gap-1.5">
+                  {char.proficiencies?.skills?.map(s => <span key={s} className="bg-[#f3efe4] text-[#19352b] border border-[#e7e0d1] px-2 py-0.5 rounded text-xs font-medium">{s}</span>)}
                 </div>
               </div>
               <div>
-                <h4 className="text-sm text-zinc-400 mb-1">Languages</h4>
-                <div className="flex flex-wrap gap-2">
-                  {char.proficiencies?.languages?.map(l => <span key={l} className="bg-dnd-surface px-2 py-1 rounded text-sm">{l}</span>)}
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#68756c] mb-1.5">Idiomas</h4>
+                <div className="flex flex-wrap gap-1.5">
+                  {char.proficiencies?.languages?.map(l => <span key={l} className="bg-[#f3efe4] text-[#19352b] border border-[#e7e0d1] px-2 py-0.5 rounded text-xs font-medium">{l}</span>)}
                 </div>
               </div>
             </div>
@@ -196,13 +220,13 @@ export function CharacterDetailPage() {
         </div>
 
         <div className="lg:col-span-2 space-y-8">
-          <div className="bg-dnd-card p-6 rounded-lg border border-dnd-border">
-            <h3 className="text-xl font-serif text-dnd-gold mb-4">Features & Traits</h3>
+          <div className="bg-[#fffdf8] p-6 rounded-xl border border-[#e7e0d1] shadow-sm">
+            <h3 className="text-lg font-serif font-bold text-[#19352b] mb-4 pb-2 border-b border-[#e7e0d1]">Rasgos y Características</h3>
             <div className="space-y-4">
               {char.features?.map((f, i) => (
-                <div key={i} className="bg-dnd-bg p-4 rounded border border-dnd-border">
-                  <h4 className="font-bold mb-2">{f.name}</h4>
-                  <p className="text-zinc-400 text-sm whitespace-pre-line">{f.description}</p>
+                <div key={i} className="bg-[#f8f5ed] p-4 rounded-lg border border-[#e7e0d1]">
+                  <h4 className="font-bold text-[#19352b] mb-1">{f.name}</h4>
+                  <p className="text-[#46534b] text-xs leading-relaxed whitespace-pre-line">{f.description}</p>
                 </div>
               ))}
             </div>

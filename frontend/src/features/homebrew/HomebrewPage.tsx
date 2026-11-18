@@ -1,157 +1,164 @@
 import { useState } from 'react';
-import { useHomebrewList, useCreateHomebrew, useDeleteHomebrew } from '../../api/useHomebrew';
+import { useHomebrewList, useCreateHomebrew } from '../../api/useHomebrew';
+import type { Homebrew } from '../../types/homebrew';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '../../components/ui/dialog';
-import { Skeleton } from '../../components/ui/skeleton';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../../components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../../components/ui/dialog';
+import { QueryError } from '@/components/common/QueryError';
 
 export default function HomebrewPage() {
   const [filterType, setFilterType] = useState('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  
-  // Form state
   const [name, setName] = useState('');
-  const [contentType, setContentType] = useState('spell');
-  const [description, setDescription] = useState('');
-  const [jsonData, setJsonData] = useState('{}');
+  const [type, setType] = useState('spell');
+  const [desc, setDesc] = useState('');
 
-  const { data: homebrewList, isLoading } = useHomebrewList({
-    content_type: filterType !== 'all' ? filterType : undefined
-  });
-  
+  const { data: homebrewList, isLoading, isError, refetch } = useHomebrewList();
   const createMutation = useCreateHomebrew();
-  const deleteMutation = useDeleteHomebrew();
 
-  const handleCreate = () => {
-    try {
-      const parsedData = JSON.parse(jsonData);
+  const handleCreate = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (name && desc) {
       createMutation.mutate({
         name,
-        content_type: contentType,
-        description,
-        data: parsedData
+        content_type: type,
+        description: desc,
+        data: { description: desc }
       }, {
         onSuccess: () => {
           setIsDialogOpen(false);
           setName('');
-          setDescription('');
-          setJsonData('{}');
+          setDesc('');
         }
       });
-    } catch (e) {
-      alert("Invalid JSON data");
     }
   };
 
   return (
-    <div className="p-6 text-zinc-100">
-      <div className="flex justify-between items-center mb-6 border-b border-dnd-teal/30 pb-2">
-        <h1 className="text-4xl font-serif text-dnd-gold">Homebrew Collection</h1>
-        
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-dnd-red hover:bg-dnd-dark text-white transition-colors">Create New</Button>
-          </DialogTrigger>
-          <DialogContent className="bg-dnd-surface border-dnd-border text-white sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-serif text-dnd-gold">Create Homebrew</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <label className="text-sm text-zinc-400">Name</label>
-                <Input value={name} onChange={e => setName(e.target.value)} className="bg-dnd-card border-dnd-border focus:border-dnd-teal" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm text-zinc-400">Type</label>
-                <Select value={contentType} onValueChange={setContentType}>
-                  <SelectTrigger className="bg-dnd-card border-dnd-border">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-dnd-card border-dnd-border text-white">
-                    <SelectItem value="spell">Spell</SelectItem>
-                    <SelectItem value="monster">Monster</SelectItem>
-                    <SelectItem value="race">Race</SelectItem>
-                    <SelectItem value="class">Class</SelectItem>
-                    <SelectItem value="equipment">Equipment</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm text-zinc-400">Description</label>
-                <textarea 
-                  value={description} 
-                  onChange={e => setDescription(e.target.value)}
-                  className="w-full bg-dnd-card border border-dnd-border rounded-md p-2 text-sm min-h-[80px] focus:border-dnd-teal outline-none transition-colors"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm text-zinc-400">Data (JSON)</label>
-                <textarea 
-                  value={jsonData} 
-                  onChange={e => setJsonData(e.target.value)}
-                  className="w-full bg-dnd-card border border-dnd-border rounded-md p-2 font-mono text-xs min-h-[120px] focus:border-dnd-teal outline-none transition-colors"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" className="border-dnd-border hover:bg-dnd-card text-white" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-              <Button className="bg-dnd-red hover:bg-dnd-dark text-white transition-colors" onClick={handleCreate} disabled={createMutation.isPending}>
-                Save
+    <div className="space-y-6">
+      <header className="cabecera">
+        <div className="cabecera-contenido">
+          <div className="marca-emblema">🧪</div>
+          <div>
+            <p className="marca-kicker">Taller de Creación</p>
+            <h1>Colección Homebrew</h1>
+            <p className="marca-descripcion">
+              Crea y consulta reglas, hechizos o criaturas caseras con la etiqueta oficial is_homebrew.
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <div className="contenido-panel">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-[#e7e0d1]">
+          <div className="w-full sm:w-64">
+            <Select value={filterType} onValueChange={setFilterType}>
+              <SelectTrigger className="bg-white border-[#e7e0d1] text-[#26342e]">
+                <SelectValue placeholder="Filtrar por tipo" />
+              </SelectTrigger>
+              <SelectContent className="bg-[#fffdf8] border-[#e7e0d1] text-[#26342e]">
+                <SelectItem value="all">Todos los tipos</SelectItem>
+                <SelectItem value="spell">Hechizo</SelectItem>
+                <SelectItem value="monster">Monstruo</SelectItem>
+                <SelectItem value="race">Raza</SelectItem>
+                <SelectItem value="class">Clase</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-[#19352b] hover:bg-[#315746] text-[#fffaf0] font-bold shadow">
+                + Crear Nuevo Homebrew
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
+            </DialogTrigger>
+            <DialogContent className="bg-[#fffdf8] border-[#e7e0d1] text-[#26342e] sm:max-w-[500px]">
+              <DialogHeader className="border-b border-[#e7e0d1] pb-3">
+                <DialogTitle className="text-2xl font-serif font-bold text-[#19352b]">
+                  Nuevo Contenido Homebrew
+                </DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleCreate} className="space-y-4 pt-2">
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-wider text-[#68756c] block mb-1">Nombre</label>
+                  <Input 
+                    placeholder="Ej: Hechizo de Fuego Místico..." 
+                    value={name} 
+                    onChange={e => setName(e.target.value)} 
+                    required 
+                    className="bg-white border-[#e7e0d1] text-[#26342e]"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-wider text-[#68756c] block mb-1">Tipo de Entidad</label>
+                  <Select value={type} onValueChange={setType}>
+                    <SelectTrigger className="bg-white border-[#e7e0d1] text-[#26342e]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#fffdf8] border-[#e7e0d1] text-[#26342e]">
+                      <SelectItem value="spell">Hechizo</SelectItem>
+                      <SelectItem value="monster">Monstruo</SelectItem>
+                      <SelectItem value="race">Raza</SelectItem>
+                      <SelectItem value="class">Clase</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-wider text-[#68756c] block mb-1">Descripción / Reglas</label>
+                  <textarea 
+                    placeholder="Detalla cómo funciona esta creación..." 
+                    className="w-full bg-white border border-[#e7e0d1] rounded-lg p-3 text-sm text-[#26342e] min-h-[120px] focus:outline-none focus:border-[#19352b]"
+                    value={desc}
+                    onChange={e => setDesc(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="flex justify-end gap-2 pt-2 border-t border-[#e7e0d1]">
+                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="border-[#e7e0d1] text-[#19352b] hover:bg-[#f3efe4]">
+                    Cancelar
+                  </Button>
+                  <Button type="submit" disabled={createMutation.isPending} className="bg-[#19352b] text-[#fffaf0] hover:bg-[#315746] font-bold">
+                    {createMutation.isPending ? 'Guardando...' : 'Crear'}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
 
-      <div className="mb-6">
-        <Select value={filterType} onValueChange={setFilterType}>
-          <SelectTrigger className="w-[200px] bg-dnd-card border-dnd-border">
-            <SelectValue placeholder="Filter by type" />
-          </SelectTrigger>
-          <SelectContent className="bg-dnd-surface border-dnd-border text-white">
-            <SelectItem value="all">All Types</SelectItem>
-            <SelectItem value="spell">Spells</SelectItem>
-            <SelectItem value="monster">Monsters</SelectItem>
-            <SelectItem value="race">Races</SelectItem>
-            <SelectItem value="class">Classes</SelectItem>
-            <SelectItem value="equipment">Equipment</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {isLoading ? (
-          Array.from({length: 3}).map((_, i) => <Skeleton key={i} className="h-48 bg-dnd-card rounded-lg" />)
-        ) : homebrewList?.map(item => (
-          <Card key={item.id} className="bg-dnd-card border-dnd-border flex flex-col hover:border-dnd-teal/40 transition-colors">
-            <CardHeader>
-              <CardTitle className="text-xl font-serif text-dnd-teal flex justify-between items-start">
-                {item.name}
-                <span className="text-xs font-sans bg-dnd-surface px-2 py-1 rounded text-zinc-400 capitalize">{item.content_type}</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex-grow">
-              <p className="text-zinc-400 text-sm line-clamp-3">{item.description || 'No description provided.'}</p>
-            </CardContent>
-            <CardFooter className="pt-4 border-t border-dnd-border">
-              <Button 
-                variant="destructive" 
-                size="sm" 
-                className="w-full bg-dnd-dark/50 hover:bg-dnd-red text-red-200 border border-dnd-dark transition-colors"
-                onClick={() => deleteMutation.mutate(item.id)}
-                disabled={deleteMutation.isPending}
-              >
-                Delete
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-32 bg-[#f8f5ed] animate-pulse rounded-lg border border-[#e7e0d1]" />
+            ))}
+          </div>
+        ) : isError ? (
+          <QueryError message="No se pudo cargar la colección homebrew." onRetry={() => void refetch()} />
+        ) : !homebrewList?.length ? (
+          <p className="text-[#68756c] italic text-center py-12">
+            No hay contenido casero registrado aún. ¡Crea el primero con el botón superior!
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {homebrewList
+              .filter((h: Homebrew) => filterType === 'all' || h.content_type === filterType)
+              .map((h: Homebrew) => (
+                <div key={h.id} className="bg-[#fffdf8] p-5 rounded-xl border border-[#e7e0d1] shadow-sm">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-serif font-bold text-xl text-[#19352b]">{h.name}</h3>
+                    <span className="text-xs uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-[#f3efe4] text-[#bd7446] border border-[#e7e0d1]">
+                      {h.content_type}
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#26342e] whitespace-pre-wrap leading-relaxed mt-2">
+                    {h.description || h.data?.description}
+                  </p>
+                </div>
+              ))}
+          </div>
+        )}
       </div>
-      {homebrewList?.length === 0 && (
-        <div className="text-center py-12 text-zinc-500 italic">No homebrew content found.</div>
-      )}
     </div>
   );
 }

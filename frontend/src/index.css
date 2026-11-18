@@ -1,49 +1,461 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
+:root {
+  --wiki-ink: #26342e;
+  --wiki-muted: #68756c;
+  --wiki-forest: #19352b;
+  --wiki-forest-light: #315746;
+  --wiki-copper: #bd7446;
+  --wiki-gold: #d9b66d;
+  --wiki-paper: #f3efe4;
+  --wiki-surface: #fffdf8;
+  --wiki-line: #e7e0d1;
+  --wiki-shadow: 0 1rem 2.5rem rgba(35, 44, 37, 0.08);
+  --wiki-radius: 1.1rem;
+
+  /* Theme tokens */
+  --dnd-bg: #f3efe4;
+  --dnd-surface: #fffdf8;
+  --dnd-card: #fffefa;
+  --dnd-border: #e7e0d1;
+  --dnd-gold: #bd7446;
+  --dnd-teal: #19352b;
+}
+
 @layer base {
   * {
     scrollbar-width: thin;
-    scrollbar-color: #31AAA9 #0f0f14;
+    scrollbar-color: #bd7446 #f3efe4;
   }
 
   ::selection {
-    background: rgba(49, 170, 169, 0.3);
-    color: #F8E0A4;
+    background: rgba(189, 116, 70, 0.25);
+    color: #19352b;
   }
 
   body {
-    font-family: 'Inter', system-ui, sans-serif;
-    background: #0f0f14;
-    color: #e4e4e7;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    color: var(--wiki-ink);
+    background:
+      radial-gradient(ellipse at 12% 0%, rgba(216, 182, 109, 0.16), transparent 34rem),
+      var(--wiki-paper);
+    line-height: 1.65;
+  }
+
+  /* Normalización de texto y alto contraste para tema claro / pergamino */
+  h1, h2, h3, h4 {
+    color: var(--wiki-forest);
+    font-family: Georgia, "Times New Roman", serif;
+  }
+
+  .text-zinc-100,
+  .text-zinc-200,
+  .text-zinc-300 {
+    color: var(--wiki-ink) !important;
+  }
+
+  .text-zinc-400,
+  .text-zinc-500 {
+    color: var(--wiki-muted) !important;
+  }
+
+  /* Evitar texto blanco sobre fondo claro en contenedores generales */
+  :not(button, .btn, [role="button"], .cabecera, nav, .marca-emblema) > .text-white,
+  p.text-white,
+  div.text-white,
+  span.text-white,
+  td.text-white,
+  th.text-white {
+    color: var(--wiki-ink) !important;
+  }
+
+  /* Tarjetas y superficies por defecto */
+  [data-slot="card"],
+  .bg-dnd-card {
+    background-color: var(--wiki-surface) !important;
+    border-color: var(--wiki-line) !important;
+    color: var(--wiki-ink) !important;
+  }
+
+  .bg-dnd-surface {
+    background-color: #f8f5ed !important;
+    border-color: var(--wiki-line) !important;
+    color: var(--wiki-ink) !important;
+  }
+
+  /* Inputs y selects legibles */
+  input,
+  select,
+  textarea {
+    color: var(--wiki-ink) !important;
+  }
+
+  [data-slot="select-trigger"],
+  [data-slot="select-content"],
+  [data-slot="dialog-content"] {
+    background-color: var(--wiki-surface) !important;
+    border-color: var(--wiki-line) !important;
+    color: var(--wiki-ink) !important;
   }
 }
 
-@layer components {
-  /* Glassmorphism container */
-  .glass {
-    background: rgba(49, 170, 169, 0.08);
-    border: 1px solid rgba(49, 170, 169, 0.15);
-    border-radius: 1rem;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
+/* Cabecera estilo compendio */
+.cabecera {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  padding: clamp(1.25rem, 3.5vw, 2.5rem);
+  color: #fffaf0;
+  background:
+    radial-gradient(circle at 88% 18%, rgba(217, 182, 109, 0.19), transparent 13rem),
+    linear-gradient(118deg, var(--wiki-forest), #244638 70%, #315746);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 4px solid var(--wiki-copper);
+  border-radius: calc(var(--wiki-radius) + 0.35rem);
+  box-shadow: var(--wiki-shadow);
+}
 
-  /* Glow accent on hover */
-  .glow-teal {
-    box-shadow: 0 0 20px rgba(49, 170, 169, 0.15);
-    transition: box-shadow 0.3s ease;
-  }
-  .glow-teal:hover {
-    box-shadow: 0 0 30px rgba(49, 170, 169, 0.3);
-  }
+.cabecera-contenido {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2.5vw, 2rem);
+}
 
-  .glow-gold {
-    box-shadow: 0 0 20px rgba(248, 224, 164, 0.1);
-    transition: box-shadow 0.3s ease;
-  }
-  .glow-gold:hover {
-    box-shadow: 0 0 30px rgba(248, 224, 164, 0.25);
-  }
+.marca-emblema {
+  display: grid;
+  flex: 0 0 auto;
+  width: 4rem;
+  aspect-ratio: 1;
+  place-items: center;
+  color: var(--wiki-forest);
+  background: var(--wiki-gold);
+  border: 3px solid rgba(255, 250, 240, 0.82);
+  border-radius: 1.15rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.45rem;
+  font-weight: 800;
+  transform: rotate(-6deg);
+}
+
+.marca-kicker {
+  color: var(--wiki-gold);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.cabecera h1 {
+  margin: 0.2rem 0 0;
+  color: #fffaf0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.65rem, 3.5vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+
+.marca-descripcion {
+  margin-top: 0.5rem;
+  color: rgba(255, 250, 240, 0.85);
+  font-size: 0.95rem;
+}
+
+/* Panel contenedor */
+.contenido-panel {
+  overflow: hidden;
+  background: var(--wiki-surface);
+  border: 1px solid var(--wiki-line);
+  border-radius: var(--wiki-radius);
+  box-shadow: var(--wiki-shadow);
+  padding: clamp(1.2rem, 2.5vw, 2rem);
+}
+
+/* Distribución de Hechizos */
+.hechizos-nivel {
+  margin-top: 1.75rem;
+}
+
+.hechizos-nivel h3 {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--wiki-line);
+  color: var(--wiki-forest);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.hechizo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  height: 100%;
+  padding: 0.6rem 0.85rem;
+  color: var(--wiki-ink);
+  background: #fffefa;
+  border: 1px solid var(--wiki-line);
+  border-radius: 0.6rem;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  cursor: pointer;
+  list-style: none;
+  transition: all 150ms ease;
+}
+
+.hechizo-item::-webkit-details-marker {
+  display: none;
+}
+
+.hechizo-indicacion {
+  flex: 0 0 auto;
+  color: var(--wiki-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.hechizo-detalle[open] .hechizo-item {
+  color: var(--wiki-forest);
+  background: #f3efe4;
+  border-color: #d3c6a9;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.hechizo-informacion {
+  padding: 0.9rem;
+  color: var(--wiki-ink);
+  background: #fffefa;
+  border: 1px solid #d3c6a9;
+  border-top: 0;
+  border-bottom-right-radius: 0.6rem;
+  border-bottom-left-radius: 0.6rem;
+}
+
+.hechizo-metadatos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 0.75rem;
+}
+
+.hechizo-metadatos > div {
+  padding: 0.35rem 0.65rem;
+  background: #f8f5ed;
+  border: 1px solid var(--wiki-line);
+  border-radius: 0.45rem;
+}
+
+.hechizo-metadatos dt {
+  color: var(--wiki-muted);
+  font-size: 0.65rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hechizo-metadatos dd {
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 650;
+  color: var(--wiki-forest);
+}
+
+/* Distribución de Objetos / Equipamiento */
+.lista-objetos {
+  display: grid;
+  align-items: start;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.objeto-resumen {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  color: var(--wiki-ink);
+  background: #fffefa;
+  border: 1px solid var(--wiki-line);
+  border-radius: 0.6rem;
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+  transition: all 150ms ease;
+}
+
+.objeto-resumen::-webkit-details-marker {
+  display: none;
+}
+
+.objeto-resumen::after {
+  flex: 0 0 auto;
+  color: var(--wiki-copper);
+  content: "+";
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.objeto-detalle[open] .objeto-resumen {
+  color: var(--wiki-forest);
+  background: #f3efe4;
+  border-color: #d3c6a9;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.objeto-detalle[open] .objeto-resumen::after {
+  content: "−";
+}
+
+.objeto-informacion {
+  padding: 0.95rem;
+  color: var(--wiki-ink);
+  background: #fffefa;
+  border: 1px solid #d3c6a9;
+  border-top: 0;
+  border-bottom-right-radius: 0.6rem;
+  border-bottom-left-radius: 0.6rem;
+}
+
+.objeto-ficha-metadatos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.5rem), 1fr));
+  gap: 0.65rem;
+  margin: 0 0 0.85rem;
+}
+
+.objeto-ficha-metadatos > div {
+  padding: 0.5rem 0.65rem;
+  background: #f8f5ed;
+  border: 1px solid var(--wiki-line);
+  border-radius: 0.5rem;
+}
+
+.objeto-ficha-metadatos dt {
+  color: var(--wiki-muted);
+  font-size: 0.65rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.objeto-ficha-metadatos dd {
+  margin: 0.15rem 0 0;
+  font-weight: 650;
+  font-size: 0.88rem;
+  color: var(--wiki-forest);
+}
+
+.objeto-propiedades {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.4rem 0 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.objeto-propiedad-badge {
+  padding: 0.2rem 0.55rem;
+  background: #f3efe4;
+  border: 1px solid #d3c6a9;
+  border-radius: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--wiki-forest);
+}
+
+/* Filtros de Objetos Mágicos */
+.rareza-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.8rem 0 1.25rem;
+}
+
+.rareza-filtro {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.85rem;
+  color: var(--wiki-forest);
+  background: #fffdf8;
+  border: 1px solid var(--wiki-line);
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.rareza-filtro:hover {
+  background: #f3efe4;
+  border-color: #d3c6a9;
+}
+
+.rareza-filtro.active {
+  color: #fffaf0;
+  background: var(--wiki-forest);
+  border-color: var(--wiki-forest);
+}
+
+.tabla-objetos-magicos {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.tabla-objetos-magicos thead th {
+  color: var(--wiki-forest);
+  background: #f3efe4;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--wiki-line);
+  text-align: left;
+}
+
+.tabla-objetos-magicos tbody td,
+.tabla-objetos-magicos tbody th {
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid var(--wiki-line);
+  font-size: 0.9rem;
+}
+
+.tabla-objetos-magicos tbody tr:hover {
+  background: rgba(243, 239, 228, 0.6);
+}
+
+.aviso-catalogo {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  background: #f8f5ed;
+  border-left: 3px solid var(--wiki-copper);
+  border-radius: 0.45rem;
+  font-size: 0.82rem;
+  color: var(--wiki-muted);
+}
+
+/* Animación del dado 3D */
+@keyframes diceSpin {
+  from { transform: rotateX(0deg) rotateY(0deg); }
+  to   { transform: rotateX(360deg) rotateY(360deg); }
+}
+
+.dice-rotate {
+  animation: diceSpin 0.6s linear;
 }

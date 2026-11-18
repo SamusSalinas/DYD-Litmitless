@@ -144,7 +144,40 @@ def test_seed_populates_all_compendium_sections_idempotently(api_client):
     assert len(api_client.get("/api/equipment/").json()) == 2
 
 
-def test_character_crud_and_validation(api_client):
+def test_character_level_up_updates_db(api_client):
+    # Create a character
+    character_data = {
+        "name": "Level Hero",
+        "level": 1,
+        "race": "Elf",
+        "character_class": "Wizard",
+        "ability_scores": {"STR": 10, "DEX": 12, "CON": 13, "INT": 15, "WIS": 14, "CHA": 8},
+        "hit_points": 8,
+        "max_hit_points": 8,
+        "armor_class": 12,
+        "speed": 30,
+        "proficiency_bonus": 2,
+        "proficiencies": {"skills": [], "tools": [], "languages": []},
+        "equipment": [],
+        "features": [],
+        "spell_ids": None,
+        "background": None,
+        "alignment": None,
+        "backstory": None,
+        "is_homebrew": False,
+    }
+    create = api_client.post("/api/characters/", json=character_data)
+    assert create.status_code == 201
+    char_id = create.json()["id"]
+    # Level up via PUT
+    update = api_client.put(f"/api/characters/{char_id}", json={"level": 5})
+    assert update.status_code == 200
+    assert update.json()["level"] == 5
+    # Verify persisted in DB by fetching again
+    fetched = api_client.get(f"/api/characters/{char_id}")
+    assert fetched.status_code == 200
+    assert fetched.json()["level"] == 5
+
     character_data = {
         "name": "Test Hero",
         "level": 1,

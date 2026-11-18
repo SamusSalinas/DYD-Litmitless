@@ -1,37 +1,28 @@
 import { useParams, Link } from 'react-router-dom';
 import { useMonster } from '../../api/useMonsters';
+import { StatBlock } from '../../components/common/StatBlock';
 import { Button } from '../../components/ui/button';
 import { Skeleton } from '../../components/ui/skeleton';
-import { StatBlock } from '../../components/common/StatBlock';
 import { QueryError } from '@/components/common/QueryError';
 
 export default function MonsterDetailPage() {
   const { id } = useParams();
-  const { data: monster, isLoading, isError, refetch } = useMonster(id);
+  const { data: monster, isLoading, isError, refetch } = useMonster(id ?? '');
 
-  if (isLoading) return <div className="p-6"><Skeleton className="h-64 max-w-md bg-dnd-surface" /></div>;
-  if (isError) return <div className="p-6"><QueryError message="Could not load this monster." onRetry={() => void refetch()} /></div>;
-  if (!monster) return <div className="p-6 text-white">Monster not found</div>;
+  if (isLoading) return <div className="p-6"><Skeleton className="h-96 w-full max-w-md bg-[#f8f5ed]" /></div>;
+  if (isError) return <div className="p-6"><QueryError message="No se pudo cargar la criatura." onRetry={() => void refetch()} /></div>;
+  if (!monster) return <div className="p-6 text-[#26342e]">Monstruo no encontrado.</div>;
 
   return (
-    <div className="p-6 text-zinc-100 flex flex-col items-center">
-      <div className="w-full max-w-4xl mb-6">
-        <Link to="/monsters">
-          <Button variant="outline" className="border-dnd-border text-zinc-300 hover:bg-dnd-surface hover:text-dnd-gold transition-colors">
-            &larr; Back to Monsters
-          </Button>
-        </Link>
-      </div>
-
-      <div className="flex flex-col md:flex-row gap-8 w-full max-w-4xl justify-center">
+    <div className="space-y-6">
+      <Link to="/monsters">
+        <Button variant="outline" className="border-[#e7e0d1] text-[#19352b] bg-[#fffdf8] hover:bg-[#f3efe4] transition-colors">
+          &larr; Volver al Bestiario
+        </Button>
+      </Link>
+      
+      <div className="flex justify-center">
         <StatBlock monster={monster} />
-        
-        {monster.description && (
-          <div className="flex-1 text-zinc-300 bg-dnd-card p-6 rounded border border-dnd-border">
-            <h2 className="text-2xl font-serif text-dnd-gold mb-4">Lore</h2>
-            <p className="whitespace-pre-wrap leading-relaxed">{monster.description}</p>
-          </div>
-        )}
       </div>
     </div>
   );

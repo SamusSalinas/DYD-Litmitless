@@ -10,6 +10,7 @@ import RaceDetailPage from '@/features/compendium/RaceDetailPage';
 import MonstersPage from '@/features/compendium/MonstersPage';
 import MonsterDetailPage from '@/features/compendium/MonsterDetailPage';
 import EquipmentPage from '@/features/compendium/EquipmentPage';
+import MagicItemsPage from '@/features/compendium/MagicItemsPage';
 import { CharacterListPage } from '@/features/characters/CharacterListPage';
 import { CharacterBuilderPage } from '@/features/characters/CharacterBuilderPage';
 import { CharacterDetailPage } from '@/features/characters/CharacterDetailPage';
@@ -31,6 +32,7 @@ function App() {
         <Route path="monsters" element={<MonstersPage />} />
         <Route path="monsters/:id" element={<MonsterDetailPage />} />
         <Route path="equipment" element={<EquipmentPage />} />
+        <Route path="magic-items" element={<MagicItemsPage />} />
         <Route path="books" element={<BooksPage />} />
         <Route path="characters" element={<CharacterListPage />} />
         <Route path="characters/new" element={<CharacterBuilderPage />} />
